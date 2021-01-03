@@ -658,7 +658,7 @@ get_shim_versions() {
 
 preset_versions() {
   shim_name=$1
-  shim_plugin_versions "${shim_name}" | cut -d' ' -f 1 | uniq | xargs -IPLUGIN bash -c "source $(asdf_dir)/lib/utils.bash; printf \"%s %s\\n\" PLUGIN \$(get_preset_version_for PLUGIN)"
+  shim_plugin_versions "${shim_name}" | cut -d' ' -f 1 | uniq | xargs -IPLUGIN bash -c "source \"$(asdf_dir)/lib/utils.bash\"; printf \"%s %s\\n\" PLUGIN \$(get_preset_version_for PLUGIN)"
 }
 
 select_from_preset_version() {
