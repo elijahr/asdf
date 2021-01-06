@@ -16,8 +16,7 @@
 > Then I said, just one more version manager<br/>
 > Which I will write instead
 
-> So, there came another version manager<br/>
-> **asdf version manager** - <https://github.com/HashNuke/asdf>
+> So, there came another version manager<br/> > **asdf version manager** - <https://github.com/HashNuke/asdf>
 
 > A version manager so extendable<br/>
 > for which anyone can create a plugin<br/>
@@ -27,4 +26,4 @@
 
 ---
 
-*This was the mail I wrote to a few friends to tell them about the project. Thanks to [@roshanvid](https://twitter.com/roshanvid) for suggesting that this go into the readme*
+_This was the mail I wrote to a few friends to tell them about the project. Thanks to [@roshanvid](https://twitter.com/roshanvid) for suggesting that this go into the readme_

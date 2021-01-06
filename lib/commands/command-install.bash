@@ -113,13 +113,13 @@ install_tool_version() {
 
   for flag in $flags; do
     case "$flag" in
-    "--keep-download")
-      keep_download=true
-      shift
-      ;;
-    *)
-      shift
-      ;;
+      "--keep-download")
+        keep_download=true
+        shift
+        ;;
+      *)
+        shift
+        ;;
     esac
   done
 

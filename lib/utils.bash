@@ -450,15 +450,15 @@ resolve_symlink() {
   # If it is a slash we can assume it's root and absolute. Otherwise we treat it
   # as relative
   case $resolved_path in
-  /*)
-    printf "%s\\n" "$resolved_path"
-    ;;
-  *)
-    (
-      cd "$(dirname "$symlink")" || exit 1
-      printf "%s\\n" "$PWD/$resolved_path"
-    )
-    ;;
+    /*)
+      printf "%s\\n" "$resolved_path"
+      ;;
+    *)
+      (
+        cd "$(dirname "$symlink")" || exit 1
+        printf "%s\\n" "$PWD/$resolved_path"
+      )
+      ;;
   esac
 }
 

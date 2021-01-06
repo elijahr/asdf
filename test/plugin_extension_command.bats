@@ -32,7 +32,7 @@ teardown() {
   plugin_path="$(get_plugin_path dummy)"
 
   # this plugin defines a new `asdf dummy foo` command
-  cat <<'EOF' > "$plugin_path/lib/commands/command-foo.bash"
+  cat <<'EOF' >"$plugin_path/lib/commands/command-foo.bash"
 #!/usr/bin/env bash
 echo this is an executable $*
 EOF
@@ -49,7 +49,7 @@ EOF
   plugin_path="$(get_plugin_path dummy)"
 
   # this plugin defines a new `asdf dummy foo` command
-  echo 'echo sourced script has asdf utils $(get_plugin_path dummy) $*' > "$plugin_path/lib/commands/command-foo.bash"
+  echo 'echo sourced script has asdf utils $(get_plugin_path dummy) $*' >"$plugin_path/lib/commands/command-foo.bash"
 
   expected="sourced script has asdf utils $plugin_path bar"
 
@@ -62,7 +62,7 @@ EOF
   plugin_path="$(get_plugin_path dummy)"
 
   # this plugin defines a new `asdf dummy` command
-  cat <<'EOF' > "$plugin_path/lib/commands/command.bash"
+  cat <<'EOF' >"$plugin_path/lib/commands/command.bash"
 #!/usr/bin/env bash
 echo hello
 EOF
@@ -79,7 +79,7 @@ EOF
   plugin_path="$(get_plugin_path dummy)"
 
   # this plugin defines a new `asdf dummy` command
-  cat <<'EOF' > "$plugin_path/lib/commands/command.bash"
+  cat <<'EOF' >"$plugin_path/lib/commands/command.bash"
 #!/usr/bin/env bash
 echo hello $*
 EOF

@@ -5,3 +5,4 @@ repository
 .vagrant
 keyrings
 /tmp
+/.vscode

@@ -20,12 +20,12 @@ shell_command() {
 
   if [ "$version" = "--unset" ]; then
     case "$asdf_shell" in
-    fish)
-      printf "set -e %s\\n" "$version_env_var"
-      ;;
-    *)
-      printf "unset %s\\n" "$version_env_var"
-      ;;
+      fish)
+        printf "set -e %s\\n" "$version_env_var"
+        ;;
+      *)
+        printf "unset %s\\n" "$version_env_var"
+        ;;
     esac
     exit 0
   fi
@@ -39,12 +39,12 @@ shell_command() {
   fi
 
   case "$asdf_shell" in
-  fish)
-    printf "set -gx %s \"%s\"\\n" "$version_env_var" "$version"
-    ;;
-  *)
-    printf "export %s=\"%s\"\\n" "$version_env_var" "$version"
-    ;;
+    fish)
+      printf "set -gx %s \"%s\"\\n" "$version_env_var" "$version"
+      ;;
+    *)
+      printf "export %s=\"%s\"\\n" "$version_env_var" "$version"
+      ;;
   esac
 }
 

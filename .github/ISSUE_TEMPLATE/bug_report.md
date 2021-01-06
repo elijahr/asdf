@@ -1,10 +1,9 @@
 ---
 name: Bug report
 about: Create a report to help us improve
-title: ''
-labels: ''
-assignees: ''
-
+title: ""
+labels: ""
+assignees: ""
 ---
 
 **Describe the bug**
@@ -16,11 +15,11 @@ A clear and concise description of what the bug is.
 Tell us what actions you performed before the issue occurred
 
 Steps to reproduce the behavior:
+
 1. Go to '...'
 2. Click on '....'
 3. Scroll down to '....'
 4. See error
-
 
 **Expected behavior**
 
@@ -33,6 +32,7 @@ Tell us what happened instead
 ### Environment
 
 <!-- Copy the output of `asdf info` here -->
+
 ```shell
 
 ```

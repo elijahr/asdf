@@ -26,7 +26,7 @@ cleaned_path() {
 }
 
 @test "adds asdf dirs to PATH" {
- result=$(fish -c "
+  result=$(fish -c "
    set -e asdf
    set -e ASDF_DIR
    set -e ASDF_DATA_DIR
@@ -36,9 +36,9 @@ cleaned_path() {
    echo \$PATH
  ")
 
- output=$(echo "$result" | grep "asdf")
- [ "$?" -eq 0 ]
- [ "$output" != "" ]
+  output=$(echo "$result" | grep "asdf")
+  [ "$?" -eq 0 ]
+  [ "$output" != "" ]
 }
 
 @test "does not add paths to PATH more than once" {
