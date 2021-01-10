@@ -36,11 +36,7 @@ jobs:
         run: |
           set -uexo pipefail
           update-ca-certificates
-          git clone \
-            --depth 1 \
-            --branch v1.2.1 \
-            https://github.com/bats-core/bats-core.git \
-            $HOME/bats-core
+          git clone --depth 1 --branch v1.2.1 https://github.com/bats-core/bats-core.git $HOME/bats-core
           echo "$HOME/bats-core/bin" >>"$GITHUB_PATH"
 
       - name: Run tests
@@ -64,11 +60,7 @@ jobs:
 
       - name: Install bats-core
         run: |
-          git clone \
-            --depth 1 \
-            --branch v1.2.1 \
-            https://github.com/bats-core/bats-core.git \
-            $HOME/bats-core
+          git clone --depth 1 --branch v1.2.1 https://github.com/bats-core/bats-core.git $HOME/bats-core
           echo "$HOME/bats-core/bin" >>"$GITHUB_PATH"
 
       - name: Run tests
