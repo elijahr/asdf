@@ -85,7 +85,7 @@ EOM
 
   local expected_output="REMOVE dummy
 plugin-remove ${ASDF_DIR}/plugins/dummy"
-  [ "$output" = "${expected_output}" ]
+  [ "$output" = "$expected_output" ]
 }
 
 @test "plugin_remove_command executes configured pre hook (specific)" {
@@ -99,7 +99,7 @@ EOM
 
   local expected_output="REMOVE
 plugin-remove ${ASDF_DIR}/plugins/dummy"
-  [ "$output" = "${expected_output}" ]
+  [ "$output" = "$expected_output" ]
 }
 
 @test "plugin_remove_command executes configured post hook (generic)" {
@@ -113,7 +113,7 @@ EOM
 
   local expected_output="plugin-remove ${ASDF_DIR}/plugins/dummy
 REMOVE dummy"
-  [ "$output" = "${expected_output}" ]
+  [ "$output" = "$expected_output" ]
 }
 
 @test "plugin_remove_command executes configured post hook (specific)" {
@@ -127,5 +127,5 @@ EOM
 
   local expected_output="plugin-remove ${ASDF_DIR}/plugins/dummy
 REMOVE"
-  [ "$output" = "${expected_output}" ]
+  [ "$output" = "$expected_output" ]
 }

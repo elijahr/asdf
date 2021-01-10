@@ -64,7 +64,7 @@ EOM
 
   local expected_output="ADD dummy
 plugin-add path=${ASDF_DIR}/plugins/dummy source_url=${BASE_DIR}/repo-dummy"
-  [ "$output" = "${expected_output}" ]
+  [ "$output" = "$expected_output" ]
 }
 
 @test "plugin_add command executes configured pre hook (specific)" {
@@ -78,7 +78,7 @@ EOM
 
   local expected_output="ADD
 plugin-add path=${ASDF_DIR}/plugins/dummy source_url=${BASE_DIR}/repo-dummy"
-  [ "$output" = "${expected_output}" ]
+  [ "$output" = "$expected_output" ]
 }
 
 @test "plugin_add command executes configured post hook (generic)" {
@@ -92,7 +92,7 @@ EOM
 
   local expected_output="plugin-add path=${ASDF_DIR}/plugins/dummy source_url=${BASE_DIR}/repo-dummy
 ADD dummy"
-  [ "$output" = "${expected_output}" ]
+  [ "$output" = "$expected_output" ]
 }
 
 @test "plugin_add command executes configured post hook (specific)" {
@@ -106,5 +106,5 @@ EOM
 
   local expected_output="plugin-add path=${ASDF_DIR}/plugins/dummy source_url=${BASE_DIR}/repo-dummy
 ADD"
-  [ "$output" = "${expected_output}" ]
+  [ "$output" = "$expected_output" ]
 }
