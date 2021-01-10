@@ -25,30 +25,19 @@ jobs:
         with:
           additional-packages: fish git ca-certificates
 
-      # - name: Install dependencies with apt
-      #   shell: wsl-bash -u root {0}
-      #   run: |
-      #     sudo apt-get update
-      #     sudo apt-get -y install fish git
+      - uses: actions/setup-node@v2
 
       - name: Install bats-core & bats-assert
         shell: wsl-bash -u root {0}
         run: |
           update-ca-certificates
-
-          git clone --depth 1 --branch v1.2.1 \
-            https://github.com/bats-core/bats-core.git \
-            "${HOME}/bats-core"
-
-          git clone --depth 1 --branch v2.0.0 \
-            https://github.com/bats-core/bats-assert.git \
-            "${HOME}/bats-core/bats-assert"
+          npm i -g bats@^1.2.1 bats-assert@v2.0.0
 
       - name: Run tests
         shell: wsl-bash -u root {0}
         env:
           GITHUB_API_TOKEN: ${{ github.token }}
-        run: "${HOME}/bats-core/bin/bats test"
+        run: bats test
 
   test_msys2:
     runs-on: windows-latest
@@ -59,15 +48,15 @@ jobs:
         with:
           fetch-depth: 0
 
+      - uses: actions/setup-node@v2
+
       - name: Install bats-core & bats-assert
-        run: |
-          git clone --depth 1 --branch v1.2.1 https://github.com/bats-core/bats-core.git ${{ github.workspace }}\bats-core
-          git clone --depth 1 --branch v2.0.0 https://github.com/bats-core/bats-assert.git ${{ github.workspace }}\bats-assert
+        run: npm i -g bats@^1.2.1 bats-assert@v2.0.0
 
       - name: Run tests
         env:
           GITHUB_API_TOKEN: ${{ github.token }}
-        run: ${{ github.workspace }}\bats-core\bin\bats test
+        run: bats test
 
   lint:
     runs-on: ubuntu-latest
