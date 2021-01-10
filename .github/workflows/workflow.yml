@@ -31,21 +31,17 @@ jobs:
           sudo apt-get update
           sudo apt-get -y install fish git
 
+      - name: Update CA certificates
+        shell: wsl-bash -u root {0}
+        run: update-ca-certificates
+
       - name: Install bats-core
         shell: wsl-bash -u root {0}
-        run: |
-          set -uexo pipefail
-          update-ca-certificates
-          git clone --depth 1 --branch v1.2.1 https://github.com/bats-core/bats-core.git $HOME/bats-core
-          echo "$HOME/bats-core/bin" >>"$GITHUB_PATH"
+        run: git clone --depth 1 --branch v1.2.1 https://github.com/bats-core/bats-core.git $HOME/bats-core
 
       - name: Run tests
         shell: wsl-bash -u root {0}
-        run: |
-          set -uexo pipefail
-          echo "$GITHUB_PATH"
-          cat "$GITHUB_PATH"
-          bats test
+        run: $HOME/bats-core/bin/bats test
 
   test_msys2:
     runs-on: windows-latest
@@ -58,13 +54,11 @@ jobs:
 
       - name: Install bats-core
         shell: bash
-        run: |
-          git clone --depth 1 --branch v1.2.1 https://github.com/bats-core/bats-core.git $HOME/bats-core
-          echo "$HOME/bats-core/bin" >>"$GITHUB_PATH"
+        run: git clone --depth 1 --branch v1.2.1 https://github.com/bats-core/bats-core.git $HOME/bats-core
 
       - name: Run tests
         shell: bash
-        run: bats test
+        run: $HOME/bats-core/bin/bats test
 
   lint:
     runs-on: ubuntu-latest
