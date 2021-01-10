@@ -25,19 +25,33 @@ jobs:
         with:
           additional-packages: fish git ca-certificates
 
-      - uses: actions/setup-node@v2
-
-      - name: Install bats-core & bats-assert
+      - name: Install dependencies with apt
         shell: wsl-bash -u root {0}
         run: |
+          sudo apt-get update
+          sudo apt-get -y install fish git
+
+      - name: Install bats-core
+        shell: wsl-bash -u root {0}
+        run: |
+          set -uexo pipefail
           update-ca-certificates
-          npm i -g bats@^1.2.1 bats-assert@v2.0.0
+          git clone \
+            --depth 1 \
+            --branch v1.2.1 \
+            https://github.com/bats-core/bats-core.git \
+            $HOME/bats-core
+          echo "$HOME/bats-core/bin" >>"$GITHUB_PATH"
 
       - name: Run tests
         shell: wsl-bash -u root {0}
         env:
           GITHUB_API_TOKEN: ${{ github.token }}
-        run: bats test
+        run: |
+          set -uexo pipefail
+          echo "$GITHUB_PATH"
+          cat "$GITHUB_PATH"
+          bats test
 
   test_msys2:
     runs-on: windows-latest
@@ -48,10 +62,14 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: actions/setup-node@v2
-
-      - name: Install bats-core & bats-assert
-        run: npm i -g bats@^1.2.1 bats-assert@v2.0.0
+      - name: Install bats-core
+        run: |
+          git clone \
+            --depth 1 \
+            --branch v1.2.1 \
+            https://github.com/bats-core/bats-core.git \
+            $HOME/bats-core
+          echo "$HOME/bats-core/bin" >>"$GITHUB_PATH"
 
       - name: Run tests
         env:
