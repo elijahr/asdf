@@ -1,5 +1,7 @@
 #!/usr/bin/env bats
 
+load ../node_modules/bats-support/load
+load ../node_modules/bats-assert/load
 load test_helpers
 
 banned_commands=(
@@ -35,7 +37,7 @@ teardown() {
     # or expect an explicit comment at end of line, allowing it.
     run bash -c "grep -nHR '$cmd' lib bin | grep -v '# asdf_allow: $cmd'"
     echo "banned command $cmd: $output"
-    [ "$status" -eq 1 ]
-    [ "" == "$output" ]
+    assert_failure
+    assert_equal "" "$output"
   done
 }

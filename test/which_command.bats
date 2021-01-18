@@ -1,5 +1,7 @@
 #!/usr/bin/env bats
 
+load ../node_modules/bats-support/load
+load ../node_modules/bats-assert/load
 load test_helpers
 
 setup() {
@@ -21,16 +23,16 @@ teardown() {
   cd $PROJECT_DIR
 
   run asdf which "dummy"
-  [ "$status" -eq 0 ]
-  [ "$output" = "$ASDF_DIR/installs/dummy/1.0/bin/dummy" ]
+  assert_success
+  assert_output "$ASDF_DIR/installs/dummy/1.0/bin/dummy"
 }
 
 @test "which should fail for unknown binary" {
   cd $PROJECT_DIR
 
   run asdf which "sunny"
-  [ "$status" -eq 1 ]
-  [ "$output" = "unknown command: sunny. Perhaps you have to reshim?" ]
+  assert_failure
+  assert_output "unknown command: sunny. Perhaps you have to reshim?"
 }
 
 @test "which should show dummy 1.0 other binary" {
@@ -41,8 +43,8 @@ teardown() {
   run asdf reshim dummy 1.0
 
   run asdf which "other_bin"
-  [ "$status" -eq 0 ]
-  [ "$output" = "$ASDF_DIR/installs/dummy/1.0/bin/subdir/other_bin" ]
+  assert_success
+  assert_output "$ASDF_DIR/installs/dummy/1.0/bin/subdir/other_bin"
 }
 
 @test "which should show path of system version" {
@@ -54,8 +56,8 @@ teardown() {
   chmod +x $PROJECT_DIR/sys/dummy
 
   run env PATH=$PATH:$PROJECT_DIR/sys asdf which "dummy"
-  [ "$status" -eq 0 ]
-  [ "$output" = "$PROJECT_DIR/sys/dummy" ]
+  assert_success
+  assert_output "$PROJECT_DIR/sys/dummy"
 }
 
 @test "which report when missing executable on system version" {
@@ -63,16 +65,16 @@ teardown() {
   cd $PROJECT_DIR
 
   run asdf which "dummy"
-  [ "$status" -eq 1 ]
-  [ "$output" = "No dummy executable found for dummy system" ]
+  assert_failure
+  assert_output "No dummy executable found for dummy system"
 }
 
 @test "which should inform when no binary is found" {
   cd $PROJECT_DIR
 
   run asdf which "bazbat"
-  [ "$status" -eq 1 ]
-  [ "$output" = "unknown command: bazbat. Perhaps you have to reshim?" ]
+  assert_failure
+  assert_output "unknown command: bazbat. Perhaps you have to reshim?"
 }
 
 @test "which should use path returned by exec-path when present" {
@@ -80,8 +82,8 @@ teardown() {
   install_dummy_exec_path_script "dummy"
 
   run asdf which "dummy"
-  [ "$status" -eq 0 ]
-  [ "$output" = "$ASDF_DIR/installs/dummy/1.0/bin/custom/dummy" ]
+  assert_success
+  assert_output "$ASDF_DIR/installs/dummy/1.0/bin/custom/dummy"
 }
 
 @test "which should return the path set by the legacy file" {
@@ -93,8 +95,8 @@ teardown() {
   echo 'legacy_version_file = yes' >$HOME/.asdfrc
 
   run asdf which "dummy"
-  [ "$status" -eq 0 ]
-  [ "$output" = "$ASDF_DIR/installs/dummy/1.1/bin/dummy" ]
+  assert_success
+  assert_output "$ASDF_DIR/installs/dummy/1.1/bin/dummy"
 }
 
 @test "which should not return shim path" {
@@ -103,6 +105,6 @@ teardown() {
   rm "$ASDF_DIR/installs/dummy/1.0/bin/dummy"
 
   run env PATH=$PATH:$ASDF_DIR/shims asdf which dummy
-  [ "$status" -eq 1 ]
-  [ "$output" = "No dummy executable found for dummy 1.0" ]
+  assert_failure
+  assert_output "No dummy executable found for dummy 1.0"
 }

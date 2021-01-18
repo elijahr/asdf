@@ -1,5 +1,7 @@
 #!/usr/bin/env bats
 
+load ../node_modules/bats-support/load
+load ../node_modules/bats-assert/load
 load test_helpers
 
 setup() {
@@ -18,6 +20,6 @@ teardown() {
 bar                           http://example.com/bar
 dummy                        *http://example.com/dummy
 foo                           http://example.com/foo"
-  [ "$status" -eq 0 ]
-  [ "$output" = "$expected" ]
+  assert_success
+  assert_output "$expected"
 }

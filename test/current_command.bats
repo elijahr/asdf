@@ -1,5 +1,7 @@
 #!/usr/bin/env bats
 
+load ../node_modules/bats-support/load
+load ../node_modules/bats-assert/load
 load test_helpers
 
 setup() {
@@ -23,8 +25,8 @@ teardown() {
   expected="dummy           1.1.0           $PROJECT_DIR/.tool-versions"
 
   run asdf current "dummy"
-  [ "$status" -eq 0 ]
-  [ "$output" = "$expected" ]
+  assert_success
+  assert_output "$expected"
 }
 
 @test "current should handle long version name" {
@@ -33,8 +35,8 @@ teardown() {
   expected="dummy           nightly-2000-01-01 $PROJECT_DIR/.tool-versions"
 
   run asdf current "dummy"
-  [ "$status" -eq 0 ]
-  [ "$output" = "$expected" ]
+  assert_success
+  assert_output "$expected"
 }
 
 @test "current should handle multiple versions" {
@@ -43,8 +45,8 @@ teardown() {
   expected="dummy           1.2.0 1.1.0     $PROJECT_DIR/.tool-versions"
 
   run asdf current "dummy"
-  [ "$status" -eq 0 ]
-  [ "$output" = "$expected" ]
+  assert_success
+  assert_output "$expected"
 }
 
 @test "current should derive from the legacy file if enabled" {
@@ -54,8 +56,8 @@ teardown() {
   expected="dummy           1.2.0           $PROJECT_DIR/.dummy-version"
 
   run asdf current "dummy"
-  [ "$status" -eq 0 ]
-  [ "$output" = "$expected" ]
+  assert_success
+  assert_output "$expected"
 }
 
 # TODO: Need to fix plugin error as well
@@ -63,8 +65,8 @@ teardown() {
   expected="No such plugin: foobar"
 
   run asdf current "foobar"
-  [ "$status" -eq 1 ]
-  [ "$output" = "$expected" ]
+  assert_failure
+  assert_output "$expected"
 }
 
 @test "current should error when no version is set" {
@@ -72,8 +74,8 @@ teardown() {
   expected='dummy           ______          No version set. Run "asdf <global|shell|local> dummy <version>"'
 
   run asdf current "dummy"
-  [ "$status" -eq 126 ]
-  [ "$output" = "$expected" ]
+  assert_equal "$status" 126
+  assert_output "$expected"
 }
 
 @test "current should error when a version is set that isn't installed" {
@@ -82,8 +84,8 @@ teardown() {
   expected='dummy           9.9.9           Not installed. Run "asdf install dummy 9.9.9"'
 
   run asdf current "dummy"
-  [ "$status" -eq 1 ]
-  [ "$output" = "$expected" ]
+  assert_failure
+  assert_output "$expected"
 }
 
 @test "should output all plugins when no plugin passed" {
@@ -105,7 +107,7 @@ teardown() {
 dummy           1.1.0           $PROJECT_DIR/.tool-versions
 foobar          1.0.0           $PROJECT_DIR/.tool-versions"
 
-  [ "$expected" = "$output" ]
+  assert_output "$expected"
 }
 
 @test "should always match the tool name exactly" {
@@ -120,7 +122,7 @@ foobar          1.0.0           $PROJECT_DIR/.tool-versions"
   echo 'y 2.1.0' >>$PROJECT_DIR/.tool-versions
 
   run asdf current "y"
-  [ "$status" -eq 0 ]
+  assert_success
   [[ $output =~ "2.1.0" ]]
 }
 
@@ -129,8 +131,8 @@ foobar          1.0.0           $PROJECT_DIR/.tool-versions"
   expected="No plugins installed"
 
   run asdf current
-  [ "$status" -eq 0 ]
-  [ "$output" = "$expected" ]
+  assert_success
+  assert_output "$expected"
 }
 
 @test "current should handle comments" {
@@ -139,6 +141,6 @@ foobar          1.0.0           $PROJECT_DIR/.tool-versions"
   expected="dummy           1.2.0           $PROJECT_DIR/.tool-versions"
 
   run asdf current "dummy"
-  [ "$status" -eq 0 ]
-  [ "$output" = "$expected" ]
+  assert_success
+  assert_output "$expected"
 }

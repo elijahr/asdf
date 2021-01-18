@@ -1,5 +1,7 @@
 #!/usr/bin/env bats
 
+load ../node_modules/bats-support/load
+load ../node_modules/bats-assert/load
 load test_helpers
 
 setup() {
@@ -14,42 +16,42 @@ teardown() {
   install_dummy_plugin
 
   run asdf plugin-remove "dummy"
-  [ "$status" -eq 0 ]
-  [ "$output" = "plugin-remove ${ASDF_DIR}/plugins/dummy" ]
+  assert_success
+  assert_output "plugin-remove ${ASDF_DIR}/plugins/dummy"
 }
 
 @test "plugin_remove_command should exit with 1 when not passed any arguments" {
   run asdf plugin-remove
-  [ "$status" -eq 1 ]
-  [ "$output" = "No plugin given" ]
+  assert_failure
+  assert_output "No plugin given"
 }
 
 @test "plugin_remove_command should exit with 1 when passed invalid plugin name" {
   run asdf plugin-remove "does-not-exist"
-  [ "$status" -eq 1 ]
-  [ "$output" = "No such plugin: does-not-exist" ]
+  assert_failure
+  assert_output "No such plugin: does-not-exist"
 }
 
 @test "plugin_remove_command should remove installed versions" {
   install_dummy_plugin
   run asdf install dummy 1.0
-  [ "$status" -eq 0 ]
-  [ -d $ASDF_DIR/installs/dummy ]
+  assert_success
+  assert [ -d $ASDF_DIR/installs/dummy ]
 
   run asdf plugin-remove dummy
-  [ "$status" -eq 0 ]
-  [ ! -d $ASDF_DIR/installs/dummy ]
+  assert_success
+  assert [ ! -d $ASDF_DIR/installs/dummy ]
 }
 
 @test "plugin_remove_command should also remove shims for that plugin" {
   install_dummy_plugin
   run asdf install dummy 1.0
-  [ "$status" -eq 0 ]
-  [ -f $ASDF_DIR/shims/dummy ]
+  assert_success
+  assert [ -f $ASDF_DIR/shims/dummy ]
 
   run asdf plugin-remove dummy
-  [ "$status" -eq 0 ]
-  [ ! -f $ASDF_DIR/shims/dummy ]
+  assert_success
+  assert [ ! -f $ASDF_DIR/shims/dummy ]
 }
 
 @test "plugin_remove_command should not remove unrelated shims" {
@@ -60,10 +62,10 @@ teardown() {
   echo "# asdf-plugin: gummy" >$ASDF_DIR/shims/gummy
 
   run asdf plugin-remove dummy
-  [ "$status" -eq 0 ]
+  assert_success
 
   # unrelated shim should exist
-  [ -f $ASDF_DIR/shims/gummy ]
+  assert [ -f $ASDF_DIR/shims/gummy ]
 }
 
 @test "plugin_remove_command executes pre-plugin-remove script" {
@@ -71,7 +73,7 @@ teardown() {
 
   run asdf plugin-remove dummy
 
-  [ "$output" = "plugin-remove ${ASDF_DIR}/plugins/dummy" ]
+  assert_output "plugin-remove ${ASDF_DIR}/plugins/dummy"
 }
 
 @test "plugin_remove_command executes configured pre hook (generic)" {
@@ -85,7 +87,7 @@ EOM
 
   local expected_output="REMOVE dummy
 plugin-remove ${ASDF_DIR}/plugins/dummy"
-  [ "$output" = "$expected_output" ]
+  assert_output "$expected_output"
 }
 
 @test "plugin_remove_command executes configured pre hook (specific)" {
@@ -99,7 +101,7 @@ EOM
 
   local expected_output="REMOVE
 plugin-remove ${ASDF_DIR}/plugins/dummy"
-  [ "$output" = "$expected_output" ]
+  assert_output "$expected_output"
 }
 
 @test "plugin_remove_command executes configured post hook (generic)" {
@@ -113,7 +115,7 @@ EOM
 
   local expected_output="plugin-remove ${ASDF_DIR}/plugins/dummy
 REMOVE dummy"
-  [ "$output" = "$expected_output" ]
+  assert_output "$expected_output"
 }
 
 @test "plugin_remove_command executes configured post hook (specific)" {
@@ -127,5 +129,5 @@ EOM
 
   local expected_output="plugin-remove ${ASDF_DIR}/plugins/dummy
 REMOVE"
-  [ "$output" = "$expected_output" ]
+  assert_output "$expected_output"
 }

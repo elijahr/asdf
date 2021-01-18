@@ -1,5 +1,7 @@
 #!/usr/bin/env bats
 
+load ../node_modules/bats-support/load
+load ../node_modules/bats-assert/load
 load test_helpers
 
 setup() {
@@ -21,8 +23,8 @@ cleaned_path() {
     echo \$ASDF_DIR
   ")
 
-  [ "$?" -eq 0 ]
-  [ "$result" != "" ]
+  assert_equal "$?" 0
+  assert [ "$result" != "" ]
 }
 
 @test "adds asdf dirs to PATH" {
@@ -37,8 +39,8 @@ cleaned_path() {
  ")
 
   output=$(echo "$result" | grep "asdf")
-  [ "$?" -eq 0 ]
-  [ "$output" != "" ]
+  assert_equal "$?" 0
+  assert [ "$output" != "" ]
 }
 
 @test "does not add paths to PATH more than once" {
@@ -54,8 +56,8 @@ cleaned_path() {
   ")
 
   output=$(echo $PATH | tr ':' '\n' | grep "asdf" | sort | uniq -d)
-  [ "$?" -eq 0 ]
-  [ "$output" = "" ]
+  assert_equal "$?" 0
+  assert_output ""
 }
 
 @test "defines the asdf function" {

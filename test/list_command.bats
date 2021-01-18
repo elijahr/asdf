@@ -1,5 +1,7 @@
 #!/usr/bin/env bats
 
+load ../node_modules/bats-support/load
+load ../node_modules/bats-assert/load
 load test_helpers
 
 setup() {
@@ -15,8 +17,8 @@ teardown() {
   run asdf install dummy 1.0.0
   run asdf install dummy 1.1.0
   run asdf list
-  [ "$(echo -e "dummy\n  1.0.0\n  1.1.0")" == "$output" ]
-  [ "$status" -eq 0 ]
+  assert_equal "$(echo -e "dummy\n  1.0.0\n  1.1.0")" "$output"
+  assert_success
 }
 
 @test "list_command should continue listing even when no version is installed for any of the plugins" {
@@ -26,26 +28,26 @@ teardown() {
   run asdf install dummy 1.0.0
   run asdf install tummy 2.0.0
   run asdf list
-  [ "$(echo -e "dummy\n  1.0.0\nmummy\n  No versions installed\ntummy\n  2.0.0")" == "$output" ]
-  [ "$status" -eq 0 ]
+  assert_equal "$(echo -e "dummy\n  1.0.0\nmummy\n  No versions installed\ntummy\n  2.0.0")" "$output"
+  assert_success
 }
 
 @test "list_command with plugin should list installed versions" {
   run asdf install dummy 1.0.0
   run asdf install dummy 1.1.0
   run asdf list dummy
-  [ "$(echo -e "  1.0.0\n  1.1.0")" == "$output" ]
-  [ "$status" -eq 0 ]
+  assert_equal "$(echo -e "  1.0.0\n  1.1.0")" "$output"
+  assert_success
 }
 
 @test "list_all_command lists available versions" {
   run asdf list-all dummy
-  [ "$(echo -e "1.0.0\n1.1.0\n2.0.0")" == "$output" ]
-  [ "$status" -eq 0 ]
+  assert_equal "$(echo -e "1.0.0\n1.1.0\n2.0.0")" "$output"
+  assert_success
 }
 
 @test "list_all_command with version filters available versions" {
   run asdf list-all dummy 1
-  [ "$(echo -e "1.0.0\n1.1.0")" == "$output" ]
-  [ "$status" -eq 0 ]
+  assert_equal "$(echo -e "1.0.0\n1.1.0")" "$output"
+  assert_success
 }

@@ -1,5 +1,7 @@
 #!/usr/bin/env bats
 
+load ../node_modules/bats-support/load
+load ../node_modules/bats-assert/load
 load test_helpers
 
 setup() {
@@ -20,7 +22,7 @@ teardown() {
 
 @test "asdf env without argument should display help" {
   run asdf env
-  [ "$status" -eq 1 ]
+  assert_failure
   echo "$output" | grep "usage: asdf env <command>"
 }
 
@@ -29,8 +31,8 @@ teardown() {
   run asdf install
 
   run asdf env dummy which dummy
-  [ "$status" -eq 0 ]
-  [ "$output" = "$ASDF_DIR/installs/dummy/1.0/bin/dummy" ]
+  assert_success
+  assert_output "$ASDF_DIR/installs/dummy/1.0/bin/dummy"
 }
 
 @test "asdf env should execute under plugin custom environment used for a shim" {
@@ -41,7 +43,7 @@ teardown() {
   chmod +x $ASDF_DIR/plugins/dummy/bin/exec-env
 
   run asdf env dummy
-  [ "$status" -eq 0 ]
+  assert_success
   echo $output | grep 'FOO=bar'
 }
 
@@ -55,15 +57,15 @@ teardown() {
   echo "dummy system" >$PROJECT_DIR/.tool-versions
 
   run asdf env dummy
-  [ "$status" -eq 0 ]
+  assert_success
 
   run grep 'FOO=bar' <(echo $output)
-  [ "$output" = "" ]
-  [ "$status" -eq 1 ]
+  assert_output ""
+  assert_failure
 
   run asdf env dummy which dummy
-  [ "$output" = "$ASDF_DIR/shims/dummy" ]
-  [ "$status" -eq 0 ]
+  assert_output "$ASDF_DIR/shims/dummy"
+  assert_success
 }
 
 @test "asdf env should set PATH correctly" {
@@ -71,13 +73,13 @@ teardown() {
   run asdf install
 
   run asdf env dummy
-  [ "$status" -eq 0 ]
+  assert_success
 
   # Should set path
   path_line=$(echo "$output" | grep '^PATH=')
-  [ "$path_line" != "" ]
+  assert [ "$path_line" != "" ]
 
   # Should not contain duplicate colon
   run grep '::' <(echo "$path_line")
-  [ "$duplicate_colon" == "" ]
+  assert_equal "$duplicate_colon" ""
 }

@@ -1,5 +1,7 @@
 #!/usr/bin/env bats
 
+load ../node_modules/bats-support/load
+load ../node_modules/bats-assert/load
 load test_helpers
 
 setup() {
@@ -13,12 +15,12 @@ teardown() {
 
 @test "latest_command shows latest stable version" {
   run asdf latest dummy
-  [ "$(echo -e "2.0.0")" == "$output" ]
-  [ "$status" -eq 0 ]
+  assert_equal "$(echo -e "2.0.0")" "$output"
+  assert_success
 }
 
 @test "latest_command with version shows latest stable version that matches the given string" {
   run asdf latest dummy 1
-  [ "$(echo -e "1.1.0")" == "$output" ]
-  [ "$status" -eq 0 ]
+  assert_equal "$(echo -e "1.1.0")" "$output"
+  assert_success
 }

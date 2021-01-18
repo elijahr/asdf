@@ -1,5 +1,7 @@
 #!/usr/bin/env bats
 
+load ../node_modules/bats-support/load
+load ../node_modules/bats-assert/load
 load test_helpers
 
 setup() {
@@ -27,14 +29,14 @@ teardown() {
 
 @test "get_config returns default when config file does not exist" {
   result=$(ASDF_CONFIG_FILE="/some/fake/path" get_asdf_config_value "legacy_version_file")
-  [ "$result" = "no" ]
+  assert_equal "$result" "no"
 }
 
 @test "get_config returns default value when the key does not exist" {
-  [ $(get_asdf_config_value "key2") = "value2" ]
+  assert [ $(get_asdf_config_value "key2") = "value2" ]
 }
 
 @test "get_config returns config file value when key exists" {
-  [ $(get_asdf_config_value "key1") = "value1" ]
-  [ $(get_asdf_config_value "legacy_version_file") = "yes" ]
+  assert [ $(get_asdf_config_value "key1") = "value1" ]
+  assert [ $(get_asdf_config_value "legacy_version_file") = "yes" ]
 }

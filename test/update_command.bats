@@ -1,5 +1,7 @@
 #!/usr/bin/env bats
 
+load ../node_modules/bats-support/load
+load ../node_modules/bats-assert/load
 load test_helpers
 
 setup() {
@@ -28,18 +30,18 @@ teardown() {
 
 @test "asdf update --head should checkout the master branch" {
   run asdf update --head
-  [ "$status" -eq 0 ]
+  assert_success
   cd $ASDF_DIR
-  [ $(git rev-parse --abbrev-ref HEAD) = "master" ]
+  assert [ $(git rev-parse --abbrev-ref HEAD) = "master" ]
 }
 
 @test "asdf update should checkout the latest non-RC tag" {
   local tag=$(git tag | grep -vi "rc" | tail -1)
   run asdf update
-  [ "$status" -eq 0 ]
+  assert_success
   cd $ASDF_DIR
   git tag | grep $tag
-  [ "$?" -eq 0 ]
+  assert_equal "$?" 0
 }
 
 @test "asdf update should checkout the latest tag when configured with use_release_candidates = yes" {
@@ -47,61 +49,61 @@ teardown() {
   export ASDF_CONFIG_DEFAULT_FILE=$BATS_TMPDIR/asdfrc_defaults
   echo "use_release_candidates = yes" >$ASDF_CONFIG_DEFAULT_FILE
   run asdf update
-  [ "$status" -eq 0 ]
+  assert_success
   cd $ASDF_DIR
   git tag | grep $tag
-  [ "$?" -eq 0 ]
+  assert_equal "$?" 0
 }
 
 @test "asdf update is a noop for when updates are disabled" {
   touch $ASDF_DIR/asdf_updates_disabled
   run asdf update
-  [ "$status" -eq 42 ]
-  [ "$(echo -e "Update command disabled. Please use the package manager that you used to install asdf to upgrade asdf.")" == "$output" ]
+  assert_equal "$status" 42
+  assert_equal "$(echo -e "Update command disabled. Please use the package manager that you used to install asdf to upgrade asdf.")" "$output"
 }
 
 @test "asdf update is a noop for non-git repos" {
   rm -rf $ASDF_DIR/.git/
   run asdf update
-  [ "$status" -eq 42 ]
-  [ "$(echo -e "Update command disabled. Please use the package manager that you used to install asdf to upgrade asdf.")" == "$output" ]
+  assert_equal "$status" 42
+  assert_equal "$(echo -e "Update command disabled. Please use the package manager that you used to install asdf to upgrade asdf.")" "$output"
 }
 
 @test "asdf update fails with exit code 1" {
   git --git-dir "$ASDF_DIR/.git" remote set-url origin https://this-host-does-not-exist.xyz
   run asdf update
-  [ "$status" -eq 1 ]
+  assert_failure
 }
 
 @test "asdf update should not remove plugin versions" {
   run asdf install dummy 1.1.0
-  [ "$status" -eq 0 ]
-  [ $(cat $ASDF_DIR/installs/dummy/1.1.0/version) = "1.1.0" ]
+  assert_success
+  assert [ $(cat $ASDF_DIR/installs/dummy/1.1.0/version) = "1.1.0" ]
   run asdf update
-  [ "$status" -eq 0 ]
-  [ -f $ASDF_DIR/installs/dummy/1.1.0/version ]
+  assert_success
+  assert [ -f $ASDF_DIR/installs/dummy/1.1.0/version ]
   run asdf update --head
-  [ "$status" -eq 0 ]
-  [ -f $ASDF_DIR/installs/dummy/1.1.0/version ]
+  assert_success
+  assert [ -f $ASDF_DIR/installs/dummy/1.1.0/version ]
 }
 
 @test "asdf update should not remove plugins" {
   # dummy plugin is already installed
   run asdf update
-  [ "$status" -eq 0 ]
-  [ -d $ASDF_DIR/plugins/dummy ]
+  assert_success
+  assert [ -d $ASDF_DIR/plugins/dummy ]
   run asdf update --head
-  [ "$status" -eq 0 ]
-  [ -d $ASDF_DIR/plugins/dummy ]
+  assert_success
+  assert [ -d $ASDF_DIR/plugins/dummy ]
 }
 
 @test "asdf update should not remove shims" {
   run asdf install dummy 1.1.0
-  [ -f $ASDF_DIR/shims/dummy ]
+  assert [ -f $ASDF_DIR/shims/dummy ]
   run asdf update
-  [ "$status" -eq 0 ]
-  [ -f $ASDF_DIR/shims/dummy ]
+  assert_success
+  assert [ -f $ASDF_DIR/shims/dummy ]
   run asdf update --head
-  [ "$status" -eq 0 ]
-  [ -f $ASDF_DIR/shims/dummy ]
+  assert_success
+  assert [ -f $ASDF_DIR/shims/dummy ]
 }

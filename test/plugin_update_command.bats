@@ -1,5 +1,7 @@
 #!/usr/bin/env bats
 
+load ../node_modules/bats-support/load
+load ../node_modules/bats-assert/load
 load test_helpers
 
 setup() {
@@ -25,41 +27,41 @@ teardown() {
 
 @test "asdf plugin-update should pull latest master branch for plugin" {
   run asdf plugin-update dummy
-  [ "$status" -eq 0 ]
+  assert_success
   [[ $output =~ "Updating dummy..."* ]]
   cd $ASDF_DIR/plugins/dummy
-  [ $(git rev-parse --abbrev-ref HEAD) = "master" ]
+  assert [ $(git rev-parse --abbrev-ref HEAD) = "master" ]
 }
 
 @test "asdf plugin-update should not remove plugin versions" {
   run asdf install dummy 1.1
-  [ "$status" -eq 0 ]
-  [ $(cat $ASDF_DIR/installs/dummy/1.1/version) = "1.1" ]
+  assert_success
+  assert [ $(cat $ASDF_DIR/installs/dummy/1.1/version) = "1.1" ]
   run asdf plugin-update dummy
-  [ "$status" -eq 0 ]
-  [ -f $ASDF_DIR/installs/dummy/1.1/version ]
+  assert_success
+  assert [ -f $ASDF_DIR/installs/dummy/1.1/version ]
   run asdf plugin-update --all
-  [ "$status" -eq 0 ]
-  [ -f $ASDF_DIR/installs/dummy/1.1/version ]
+  assert_success
+  assert [ -f $ASDF_DIR/installs/dummy/1.1/version ]
 }
 
 @test "asdf plugin-update should not remove plugins" {
   # dummy plugin is already installed
   run asdf plugin-update dummy
-  [ "$status" -eq 0 ]
-  [ -d $ASDF_DIR/plugins/dummy ]
+  assert_success
+  assert [ -d $ASDF_DIR/plugins/dummy ]
   run asdf plugin-update --all
-  [ "$status" -eq 0 ]
-  [ -d $ASDF_DIR/plugins/dummy ]
+  assert_success
+  assert [ -d $ASDF_DIR/plugins/dummy ]
 }
 
 @test "asdf plugin-update should not remove shims" {
   run asdf install dummy 1.1
-  [ -f $ASDF_DIR/shims/dummy ]
+  assert [ -f $ASDF_DIR/shims/dummy ]
   run asdf plugin-update dummy
-  [ "$status" -eq 0 ]
-  [ -f $ASDF_DIR/shims/dummy ]
+  assert_success
+  assert [ -f $ASDF_DIR/shims/dummy ]
   run asdf plugin-update --all
-  [ "$status" -eq 0 ]
-  [ -f $ASDF_DIR/shims/dummy ]
+  assert_success
+  assert [ -f $ASDF_DIR/shims/dummy ]
 }

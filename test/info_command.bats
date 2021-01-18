@@ -1,5 +1,7 @@
 #!/usr/bin/env bats
 
+load ../node_modules/bats-support/load
+load ../node_modules/bats-assert/load
 load test_helpers
 
 setup() {
@@ -22,6 +24,6 @@ teardown() {
 
   run asdf info
 
-  [ "$status" -eq 0 ]
+  assert_success
   # TODO: Assert asdf info output is printed
 }

@@ -1,5 +1,7 @@
 #!/usr/bin/env bats
 
+load ../node_modules/bats-support/load
+load ../node_modules/bats-assert/load
 load test_helpers
 
 setup() {
@@ -21,10 +23,10 @@ teardown() {
   touch "$plugin_path/lib/commands/command-foo.bash"
   touch "$plugin_path/lib/commands/command-foo-bar.bash"
   run asdf help
-  [ "$status" -eq 0 ]
+  assert_success
   echo "$output" | grep "PLUGIN dummy" # should present plugin section
   listed_cmds=$(echo "$output" | grep "asdf dummy" | wc -l)
-  [ "$listed_cmds" -eq 3 ]
+  assert_equal "$listed_cmds" 3
   echo "$output" | grep "asdf dummy foo bar" # should present commands without hipens
 }
 
@@ -41,8 +43,8 @@ EOF
   expected="this is an executable bar"
 
   run asdf dummy foo bar
-  [ "$status" -eq 0 ]
-  [ "$output" = "$expected" ]
+  assert_success
+  assert_output "$expected"
 }
 
 @test "asdf can source plugin bin scripts" {
@@ -54,8 +56,8 @@ EOF
   expected="sourced script has asdf utils $plugin_path bar"
 
   run asdf dummy foo bar
-  [ "$status" -eq 0 ]
-  [ "$output" = "$expected" ]
+  assert_success
+  assert_output "$expected"
 }
 
 @test "asdf can execute plugin default command without arguments" {
@@ -71,8 +73,8 @@ EOF
   expected="hello"
 
   run asdf dummy
-  [ "$status" -eq 0 ]
-  [ "$output" = "$expected" ]
+  assert_success
+  assert_output "$expected"
 }
 
 @test "asdf can execute plugin default command with arguments" {
@@ -88,6 +90,6 @@ EOF
   expected="hello world"
 
   run asdf dummy world
-  [ "$status" -eq 0 ]
-  [ "$output" = "$expected" ]
+  assert_success
+  assert_output "$expected"
 }

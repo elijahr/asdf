@@ -1,5 +1,7 @@
 #!/usr/bin/env bats
 
+load ../node_modules/bats-support/load
+load ../node_modules/bats-assert/load
 load test_helpers
 
 setup() {
@@ -13,16 +15,16 @@ teardown() {
 
 @test "plugin_remove command removes the plugin directory" {
   run asdf install dummy 1.0
-  [ "$status" -eq 0 ]
-  [ -d "$ASDF_DIR/downloads/dummy" ]
+  assert_success
+  assert [ -d "$ASDF_DIR/downloads/dummy" ]
 
   run asdf plugin-remove "dummy"
-  [ "$status" -eq 0 ]
-  [ ! -d "$ASDF_DIR/downloads/dummy" ]
+  assert_success
+  assert [ ! -d "$ASDF_DIR/downloads/dummy" ]
 }
 
 @test "plugin_remove command fails if the plugin doesn't exist" {
   run asdf plugin-remove "does-not-exist"
-  [ "$status" -eq 1 ]
+  assert_failure
   echo "$output" | grep "No such plugin: does-not-exist"
 }

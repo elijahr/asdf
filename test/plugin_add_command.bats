@@ -1,5 +1,7 @@
 #!/usr/bin/env bats
 
+load ../node_modules/bats-support/load
+load ../node_modules/bats-assert/load
 load test_helpers
 
 setup() {
@@ -12,22 +14,22 @@ teardown() {
 
 @test "plugin_add command with no URL specified adds a plugin using repo" {
   run asdf plugin-add "elixir"
-  [ "$status" -eq 0 ]
+  assert_success
 
   run asdf plugin-list
   # whitespace between 'elixir' and url is from printf %-15s %s format
-  [ "$output" = "elixir" ]
+  assert_output "elixir"
 }
 
 @test "plugin_add command with URL specified adds a plugin using repo" {
   install_mock_plugin_repo "dummy"
 
   run asdf plugin-add "dummy" "${BASE_DIR}/repo-dummy"
-  [ "$status" -eq 0 ]
+  assert_success
 
   run asdf plugin-list
   # whitespace between 'elixir' and url is from printf %-15s %s format
-  [ "$output" = "dummy" ]
+  assert_output "dummy"
 }
 
 @test "plugin_add command with URL specified run twice returns error second time" {
@@ -35,13 +37,13 @@ teardown() {
 
   run asdf plugin-add "dummy" "${BASE_DIR}/repo-dummy"
   run asdf plugin-add "dummy" "${BASE_DIR}/repo-dummy"
-  [ "$status" -eq 2 ]
-  [ "$output" = "Plugin named dummy already added" ]
+  assert_equal "$status" 2
+  assert_output "Plugin named dummy already added"
 }
 
 @test "plugin_add command with no URL specified fails if the plugin doesn't exist" {
   run asdf plugin-add "does-not-exist"
-  [ "$status" -eq 1 ]
+  assert_failure
   echo "$output" | grep "plugin does-not-exist not found in repository"
 }
 
@@ -50,7 +52,7 @@ teardown() {
 
   run asdf plugin-add "dummy" "${BASE_DIR}/repo-dummy"
 
-  [ "$output" = "plugin-add path=${ASDF_DIR}/plugins/dummy source_url=${BASE_DIR}/repo-dummy" ]
+  assert_output "plugin-add path=${ASDF_DIR}/plugins/dummy source_url=${BASE_DIR}/repo-dummy"
 }
 
 @test "plugin_add command executes configured pre hook (generic)" {
@@ -64,7 +66,7 @@ EOM
 
   local expected_output="ADD dummy
 plugin-add path=${ASDF_DIR}/plugins/dummy source_url=${BASE_DIR}/repo-dummy"
-  [ "$output" = "$expected_output" ]
+  assert_output "$expected_output"
 }
 
 @test "plugin_add command executes configured pre hook (specific)" {
@@ -78,7 +80,7 @@ EOM
 
   local expected_output="ADD
 plugin-add path=${ASDF_DIR}/plugins/dummy source_url=${BASE_DIR}/repo-dummy"
-  [ "$output" = "$expected_output" ]
+  assert_output "$expected_output"
 }
 
 @test "plugin_add command executes configured post hook (generic)" {
@@ -92,7 +94,7 @@ EOM
 
   local expected_output="plugin-add path=${ASDF_DIR}/plugins/dummy source_url=${BASE_DIR}/repo-dummy
 ADD dummy"
-  [ "$output" = "$expected_output" ]
+  assert_output "$expected_output"
 }
 
 @test "plugin_add command executes configured post hook (specific)" {
@@ -106,5 +108,5 @@ EOM
 
   local expected_output="plugin-add path=${ASDF_DIR}/plugins/dummy source_url=${BASE_DIR}/repo-dummy
 ADD"
-  [ "$output" = "$expected_output" ]
+  assert_output "$expected_output"
 }
