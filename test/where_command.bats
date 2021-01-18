@@ -64,7 +64,7 @@ function teardown() {
   run asdf where 'dummy'
 
   local expected
-  expected="No version set for dummy; please run \`asdf <global | shell | local> dummy <version>\`"
+  expected='No version set for dummy; please run `asdf <global | shell | local> dummy <version>`'
 
   [ "$status" -eq 1 ]
   [ "$output" = "$expected" ]

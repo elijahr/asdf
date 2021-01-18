@@ -1,7 +1,7 @@
 # -*- sh -*-
 
 asdf_help() {
-  printf "version: %s\\n\\n" "$(asdf_version)"
+  printf 'version: %s\n\n' "$(asdf_version)"
   cat "$(asdf_dir)/help.txt"
 }
 
@@ -22,7 +22,7 @@ asdf_extension_cmds() {
     sed "s#^$plugins_path/##;s#lib/commands/command##;s/.bash//;s/^-//;s/-/ /g")"
   if test -n "$ext_cmds"; then
     cut -d'/' -f 1 <<<"$ext_cmds" | uniq | while read -r plugin; do
-      printf "\\nPLUGIN %s\\n" "$plugin"
+      printf '\nPLUGIN %s\n' "$plugin"
       grep "$plugin/" <<<"$ext_cmds" | sed "s#^$plugin/#  asdf $plugin#" | sort
     done
   fi
@@ -74,11 +74,11 @@ help_command() {
           (print_plugin_help "$plugin_path")
         fi
       else
-        printf "No documentation for plugin %s\\n" "$plugin_name" >&2
+        printf 'No documentation for plugin %s\n' "$plugin_name" >&2
         exit 1
       fi
     else
-      printf "No plugin named %s\\n" "$plugin_name" >&2
+      printf 'No plugin named %s\n' "$plugin_name" >&2
       exit 1
     fi
   else

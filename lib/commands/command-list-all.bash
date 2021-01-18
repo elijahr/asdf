@@ -19,7 +19,7 @@ list_all_command() {
   IFS=' ' read -r -a versions_list <<<"$versions"
 
   for version in "${versions_list[@]}"; do
-    printf "%s\\n" "${version}"
+    printf '%s\n' "${version}"
   done
 }
 

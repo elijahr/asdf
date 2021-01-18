@@ -69,7 +69,7 @@ teardown() {
 
 @test "current should error when no version is set" {
   cd $PROJECT_DIR
-  expected="dummy           ______          No version set. Run \"asdf <global|shell|local> dummy <version>\""
+  expected='dummy           ______          No version set. Run "asdf <global|shell|local> dummy <version>"'
 
   run asdf current "dummy"
   [ "$status" -eq 126 ]
@@ -79,7 +79,7 @@ teardown() {
 @test "current should error when a version is set that isn't installed" {
   cd $PROJECT_DIR
   echo 'dummy 9.9.9' >>$PROJECT_DIR/.tool-versions
-  expected="dummy           9.9.9           Not installed. Run \"asdf install dummy 9.9.9\""
+  expected='dummy           9.9.9           Not installed. Run "asdf install dummy 9.9.9"'
 
   run asdf current "dummy"
   [ "$status" -eq 1 ]
@@ -121,7 +121,7 @@ foobar          1.0.0           $PROJECT_DIR/.tool-versions"
 
   run asdf current "y"
   [ "$status" -eq 0 ]
-  [[ "$output" =~ "2.1.0" ]]
+  [[ $output =~ "2.1.0" ]]
 }
 
 @test "with no plugins prints an error" {

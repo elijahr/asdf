@@ -284,13 +284,13 @@ false"
 @test "export-shell-version should export version if it exists" {
   run asdf export-shell-version sh "dummy" "1.1.0"
   [ "$status" -eq 0 ]
-  [ "$output" = "export ASDF_DUMMY_VERSION=\"1.1.0\"" ]
+  [ "$output" = 'export ASDF_DUMMY_VERSION="1.1.0"' ]
 }
 
 @test "export-shell-version should use set when shell is fish" {
   run asdf export-shell-version fish "dummy" "1.1.0"
   [ "$status" -eq 0 ]
-  [ "$output" = "set -gx ASDF_DUMMY_VERSION \"1.1.0\"" ]
+  [ "$output" = 'set -gx ASDF_DUMMY_VERSION "1.1.0"' ]
 }
 
 @test "export-shell-version should unset when --unset flag is passed" {
