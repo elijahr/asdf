@@ -13,7 +13,8 @@ on:
     - cron: 0 0 * * 5
 
 jobs:
-  test_wsl:
+  test_wsl_v1:
+    name: Test WSLv1
     runs-on: windows-latest
 
     steps:
@@ -29,15 +30,11 @@ jobs:
         shell: wsl-bash -u root {0}
         run: |
           sudo apt-get update
-          sudo apt-get -y install fish git ca-certificates curl
+          sudo apt-get -y install fish git ca-certificates curl nodejs
 
       - name: Update CA certificates
         shell: wsl-bash -u root {0}
         run: update-ca-certificates
-
-      - uses: actions/setup-node@v2
-        with:
-          node-version: "14.x"
 
       - name: Run tests
         shell: wsl-bash -u root {0}
@@ -48,7 +45,8 @@ jobs:
           npm ls --verbose
           npm run test --verbose
 
-  test_msys2:
+  test_windows:
+    name: Test Windows
     runs-on: windows-latest
 
     steps:
@@ -61,14 +59,8 @@ jobs:
         with:
           node-version: "14.x"
 
-      - uses: msys2/setup-msys2@v2
-        with:
-          update: true
-          install: >-
-            fish
-
       - name: Run tests
-        shell: msys2 {0}
+        shell: bash
         run: |
           npm install --include=dev --verbose
           find node_modules
