@@ -24,26 +24,28 @@ jobs:
 
       - name: Install WSLv1
         uses: Vampire/setup-wsl@v1
-        with:
-          additional-packages: fish git ca-certificates
 
-      - name: Install dependencies with apt
+      - name: Install dependencies
         shell: wsl-bash -u root {0}
         run: |
           sudo apt-get update
-          sudo apt-get -y install fish git
+          sudo apt-get -y install fish git ca-certificates
 
       - name: Update CA certificates
         shell: wsl-bash -u root {0}
         run: update-ca-certificates
 
-      - name: Install bats-core
+      - name: Install bats
         shell: wsl-bash -u root {0}
-        run: git clone --depth 1 --branch v1.2.1 https://github.com/bats-core/bats-core.git $HOME/bats-core
+        run: |
+          curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.37.2/install.sh | bash
+          nvm install node
+          nvm use node
+          npm install --include=dev
 
       - name: Run tests
         shell: wsl-bash -u root {0}
-        run: $HOME/bats-core/bin/bats test
+        run: npm run test
 
   test_msys2:
     runs-on: windows-latest
@@ -54,10 +56,12 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Install bats-core
-        shell: bash
-        run: git clone --depth 1 --branch v1.2.1 https://github.com/bats-core/bats-core.git $HOME/bats-core
+      - uses: actions/setup-node@v2
+        with:
+          node-version: "15.x"
 
       - name: Run tests
         shell: bash
-        run: $HOME/bats-core/bin/bats test
+        run: |
+          npm install --include=dev
+          npm run test

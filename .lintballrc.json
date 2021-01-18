@@ -1,5 +1,6 @@
 {
   "ignores": [
+    "*/node_modules/*",
     "*/.git/*",
     "*/tmp/*",
     "*/installs/*",
