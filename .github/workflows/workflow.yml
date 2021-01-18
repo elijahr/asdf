@@ -39,13 +39,16 @@ jobs:
         shell: wsl-bash -u root {0}
         run: |
           curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.37.2/install.sh | bash
-          nvm install node
-          nvm use node
-          npm install --include=dev
+          # export NVM_DIR="$HOME/.nvm"
+          # [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm
 
       - name: Run tests
         shell: wsl-bash -u root {0}
-        run: npm run test
+        run: |
+          nvm install node
+          nvm use node
+          npm install --include=dev
+          npm run test
 
   test_msys2:
     runs-on: windows-latest
