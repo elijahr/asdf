@@ -72,7 +72,7 @@ teardown() {
 
   run asdf local "dummy" "1.1.0"
   assert_success
-  assert_equal "$(ls $PROJECT_DIR/.tool-versions* | wc -l)" 1
+  assert_equal "$(ls $PROJECT_DIR/.tool-versions* | wc -l | xargs)" 1
 }
 
 @test "local should overwrite the existing version if it's set" {

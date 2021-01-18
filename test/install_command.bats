@@ -99,7 +99,7 @@ teardown() {
   run grep "# asdf-plugin: dummy 1.0.0"$'\n'"# asdf-plugin: dummy 1.1.0" $ASDF_DIR/shims/dummy
   assert_success
 
-  lines_count=$(grep "asdf-plugin: dummy 1.1.0" $ASDF_DIR/shims/dummy | wc -l)
+  lines_count=$(grep "asdf-plugin: dummy 1.1.0" $ASDF_DIR/shims/dummy | wc -l | xargs)
   assert_equal "$lines_count" "1"
 }
 

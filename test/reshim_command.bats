@@ -79,15 +79,15 @@ teardown() {
 
   run rm $ASDF_DIR/shims/*
   assert_success
-  assert_equal "$(ls $ASDF_DIR/shims/dummy* | wc -l)" "0"
+  assert_equal "$(ls $ASDF_DIR/shims/dummy* | wc -l | xargs)" "0"
 
   run asdf reshim dummy
   assert_success
-  assert_equal "$(ls $ASDF_DIR/shims/dummy* | wc -l)" "1"
+  assert_equal "$(ls $ASDF_DIR/shims/dummy* | wc -l | xargs)" "1"
 
   run asdf reshim dummy
   assert_success
-  assert_equal "$(ls $ASDF_DIR/shims/dummy* | wc -l)" "1"
+  assert_equal "$(ls $ASDF_DIR/shims/dummy* | wc -l | xargs)" "1"
 }
 
 @test "reshim should create shims only for files and not folders" {
@@ -101,13 +101,13 @@ teardown() {
 
   run rm $ASDF_DIR/shims/*
   assert_success
-  assert_equal "$(ls $ASDF_DIR/shims/dummy* | wc -l)" "0"
-  assert_equal "$(ls $ASDF_DIR/shims/subdir* | wc -l)" "0"
+  assert_equal "$(ls $ASDF_DIR/shims/dummy* | wc -l | xargs)" "0"
+  assert_equal "$(ls $ASDF_DIR/shims/subdir* | wc -l | xargs)" "0"
 
   run asdf reshim dummy
   assert_success
-  assert_equal "$(ls $ASDF_DIR/shims/dummy* | wc -l)" "1"
-  assert_equal "$(ls $ASDF_DIR/shims/subdir* | wc -l)" "0"
+  assert_equal "$(ls $ASDF_DIR/shims/dummy* | wc -l | xargs)" "1"
+  assert_equal "$(ls $ASDF_DIR/shims/subdir* | wc -l | xargs)" "0"
 
 }
 
@@ -115,10 +115,10 @@ teardown() {
   run asdf install dummy 1.0
   run rm $ASDF_DIR/shims/*
   assert_success
-  assert_equal "$(ls $ASDF_DIR/shims/dummy* | wc -l)" "0"
+  assert_equal "$(ls $ASDF_DIR/shims/dummy* | wc -l | xargs)" "0"
   run asdf reshim
   assert_success
-  assert_equal "$(ls $ASDF_DIR/shims/dummy* | wc -l)" "1"
+  assert_equal "$(ls $ASDF_DIR/shims/dummy* | wc -l | xargs)" "1"
 }
 
 @test "reshim command executes configured pre hook" {

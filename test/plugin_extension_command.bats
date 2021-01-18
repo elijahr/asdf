@@ -25,7 +25,7 @@ teardown() {
   run asdf help
   assert_success
   echo "$output" | grep "PLUGIN dummy" # should present plugin section
-  listed_cmds=$(echo "$output" | grep "asdf dummy" | wc -l)
+  listed_cmds=$(echo "$output" | grep "asdf dummy" | wc -l | xargs)
   assert_equal "$listed_cmds" 3
   echo "$output" | grep "asdf dummy foo bar" # should present commands without hipens
 }
