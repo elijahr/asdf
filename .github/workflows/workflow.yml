@@ -64,6 +64,7 @@ jobs:
       - name: Run tests
         shell: bash
         run: |
+          pacman -Syu fish
           npm install --include=dev --verbose
           find node_modules
           npm link bats --verbose
