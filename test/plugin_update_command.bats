@@ -26,7 +26,7 @@ teardown() {
 @test "asdf plugin-update should pull latest master branch for plugin" {
   run asdf plugin-update dummy
   [ "$status" -eq 0 ]
-  [[ "$output" =~ "Updating dummy..."* ]]
+  [[ $output =~ "Updating dummy..."* ]]
   cd $ASDF_DIR/plugins/dummy
   [ $(git rev-parse --abbrev-ref HEAD) = "master" ]
 }

@@ -1,4 +1,4 @@
-(function (win) {
+(function(win) {
   win.EditOnGithubPlugin = {};
 
   function create(docBase, options) {
@@ -22,8 +22,8 @@
 
     win.EditOnGithubPlugin.editDoc = editDoc;
 
-    return function (hook, vm) {
-      win.EditOnGithubPlugin.onClick = function (event) {
+    return function(hook, vm) {
+      win.EditOnGithubPlugin.onClick = function(event) {
         EditOnGithubPlugin.editDoc(event, vm);
       };
 
@@ -34,10 +34,10 @@
         '" target="_blank" onclick="EditOnGithubPlugin.onClick(event)">',
         title,
         "</a></p>",
-        "</div>",
+        "</div>"
       ].join("");
 
-      hook.afterEach(function (html) {
+      hook.afterEach(function(html) {
         return header + html;
       });
     };

@@ -1,3 +1,5 @@
+# lintball lang=bash
+
 # For Korn shells (ksh, mksh, etc.), capture $_ (the final parameter passed to
 # the last command) straightaway, as it will contain the path to this script.
 # For Bash, ${BASH_SOURCE[0]} will be used to obtain this script's path.
@@ -5,7 +7,7 @@
 _under="$_"
 if [ "${BASH_SOURCE[0]}" != "" ]; then
   current_script_path="${BASH_SOURCE[0]}"
-elif [[ "$_under" == *".sh" ]]; then
+elif [[ $_under == *".sh" ]]; then
   current_script_path="$_under"
 else
   current_script_path="$0"

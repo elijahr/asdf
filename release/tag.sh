@@ -48,14 +48,14 @@ new_version="${1:-}"
 new_tag_name="v$new_version"
 
 # Make sure the user provides a version
-if [[ -z "$new_version" ]]; then
+if [[ -z $new_version ]]; then
   echo "ERROR: no new version specified"
   error_exit
 fi
 
 # Make sure version passed in is a plain semantic version to guard against
 # leading 'v'.
-if ! [[ "${new_version:0:1}" =~ ^[0-9]+$ ]]; then
+if ! [[ ${new_version:0:1} =~ ^[0-9]+$ ]]; then
   echo >&2 "ERROR: semantic version should not start with a letter"
   error_exit
 fi

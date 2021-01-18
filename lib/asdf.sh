@@ -1,3 +1,5 @@
+# lintball lang=bash
+
 # The asdf function is a wrapper so we can export variables
 asdf() {
   local command

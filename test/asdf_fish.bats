@@ -69,5 +69,5 @@ cleaned_path() {
   ")
 
   echo $output
-  [[ "$output" =~ "is a function" ]]
+  [[ $output =~ "is a function" ]]
 }

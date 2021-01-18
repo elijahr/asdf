@@ -31,7 +31,7 @@ update_plugin() {
   local gitref=$3
   logfile=$(mktemp)
   {
-    printf "Updating %s...\\n" "$plugin_name"
+    printf 'Updating %s...\n' "$plugin_name"
     (cd "$plugin_path" && git fetch -p -u origin "$gitref:$gitref" && git checkout -f "$gitref")
   } >"$logfile" 2>&1
   cat "$logfile"

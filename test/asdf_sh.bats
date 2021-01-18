@@ -67,5 +67,5 @@ cleaned_path() {
     type asdf
   )
 
-  [[ "$output" =~ "is a function" ]]
+  [[ $output =~ "is a function" ]]
 }
