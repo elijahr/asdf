@@ -35,18 +35,13 @@ jobs:
         shell: wsl-bash -u root {0}
         run: update-ca-certificates
 
-      - name: Install bats
-        shell: wsl-bash -u root {0}
-        run: |
-          curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.37.2/install.sh | bash
-          # export NVM_DIR="$HOME/.nvm"
-          # [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm
+      - uses: actions/setup-node@v2
+        with:
+          node-version: "15.x"
 
       - name: Run tests
         shell: wsl-bash -u root {0}
         run: |
-          nvm install node
-          nvm use node
           npm install --include=dev
           npm link bats
           npm run test
