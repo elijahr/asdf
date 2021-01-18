@@ -42,9 +42,10 @@ jobs:
       - name: Run tests
         shell: wsl-bash -u root {0}
         run: |
-          npm install --include=dev
-          npm link bats
-          npm run test
+          npm install --include=dev --verbose
+          npm link bats --verbose
+          npm ls --verbose
+          npm run test --verbose
 
   test_msys2:
     runs-on: windows-latest
@@ -62,6 +63,7 @@ jobs:
       - name: Run tests
         shell: bash
         run: |
-          npm install --include=dev
-          npm link bats
-          npm run test
+          npm install --include=dev --verbose
+          npm link bats --verbose
+          npm ls --verbose
+          npm run test --verbose
