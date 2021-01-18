@@ -29,7 +29,7 @@ jobs:
         shell: wsl-bash -u root {0}
         run: |
           sudo apt-get update
-          sudo apt-get -y install fish git ca-certificates
+          sudo apt-get -y install fish git ca-certificates curl
 
       - name: Update CA certificates
         shell: wsl-bash -u root {0}
