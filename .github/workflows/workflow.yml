@@ -43,6 +43,7 @@ jobs:
         shell: wsl-bash -u root {0}
         run: |
           npm install --include=dev --verbose
+          find node_modules
           npm link bats --verbose
           npm ls --verbose
           npm run test --verbose
@@ -64,6 +65,7 @@ jobs:
         shell: bash
         run: |
           npm install --include=dev --verbose
+          find node_modules
           npm link bats --verbose
           npm ls --verbose
           npm run test --verbose
