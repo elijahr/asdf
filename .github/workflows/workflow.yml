@@ -61,10 +61,15 @@ jobs:
         with:
           node-version: "14.x"
 
+      - uses: msys2/setup-msys2@v2
+        with:
+          update: true
+          install: >-
+            fish
+
       - name: Run tests
-        shell: bash
+        shell: msys2 {0}
         run: |
-          pacman -Syu fish
           npm install --include=dev --verbose
           find node_modules
           npm link bats --verbose
