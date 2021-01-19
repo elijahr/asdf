@@ -39,6 +39,10 @@ jobs:
       - name: Run tests
         shell: wsl-bash -u root {0}
         run: |
+          set -euxo pipefail
+          which npm
+          which node
+          find $(dirname $(which npm))
           npm install --include=dev --verbose
           find node_modules
           npm link bats --verbose
@@ -63,7 +67,33 @@ jobs:
         shell: bash
         run: |
           npm install --include=dev --verbose
-          find node_modules
           npm link bats --verbose
-          npm ls --verbose
+          npm run test --verbose
+
+  test_msys2:
+    name: Test Windows
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v2
+        with:
+          node-version: "14.x"
+
+      - uses: msys2/setup-msys2@v2
+        with:
+          update: true
+          install: >-
+            nodejs
+            git
+
+      - name: Run tests
+        shell: msys2 {0}
+        run: |
+          npm install --include=dev --verbose
+          npm link bats --verbose
           npm run test --verbose
