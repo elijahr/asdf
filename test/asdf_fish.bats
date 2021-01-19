@@ -5,11 +5,11 @@ load ../node_modules/bats-assert/load
 load test_helpers
 
 setup() {
-  cd $(dirname "$BATS_TEST_DIRNAME")
+  cd "$(dirname "$BATS_TEST_DIRNAME")"
 }
 
 cleaned_path() {
-  echo $PATH | tr ':' '\n' | grep -v "asdf" | tr '\n' ' '
+  echo "$PATH" | tr ':' '\n' | grep -v "asdf" | tr '\n' ' '
 }
 
 @test "exports ASDF_DIR" {
@@ -17,7 +17,7 @@ cleaned_path() {
     set -e asdf
     set -e ASDF_DIR
     set -e ASDF_DATA_DIR
-    set PATH $(cleaned_path)
+    set PATH '$(cleaned_path)'
 
     source asdf.fish
     echo \$ASDF_DIR
@@ -32,7 +32,7 @@ cleaned_path() {
    set -e asdf
    set -e ASDF_DIR
    set -e ASDF_DATA_DIR
-   set PATH $(cleaned_path)
+   set PATH '$(cleaned_path)'
 
    source (pwd)/asdf.fish  # if the full path is not passed, status -f will return the relative path
    echo \$PATH
@@ -48,14 +48,14 @@ cleaned_path() {
     set -e asdf
     set -e ASDF_DIR
     set -e ASDF_DATA_DIR
-    set PATH $(cleaned_path)
+    set PATH '$(cleaned_path)'
 
     source asdf.fish
     source asdf.fish
     echo \$PATH
   ")
 
-  output=$(echo $PATH | tr ':' '\n' | grep "asdf" | sort | uniq -d)
+  output=$(echo "$PATH" | tr ':' '\n' | grep "asdf" | sort | uniq -d)
   assert_equal "$?" 0
   assert_output ""
 }
@@ -64,12 +64,12 @@ cleaned_path() {
   output=$(fish -c "
     set -e asdf
     set -e ASDF_DIR
-    set PATH $(cleaned_path)
+    set PATH '$(cleaned_path)'
 
     source asdf.fish
     type asdf
   ")
 
-  echo $output
+  echo "$output"
   [[ $output =~ "is a function" ]]
 }

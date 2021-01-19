@@ -5,15 +5,15 @@ load ../node_modules/bats-assert/load
 load test_helpers
 
 setup() {
-  cd $BATS_TMPDIR
+  cd "$BATS_TMPDIR"
   ASDF_CONFIG_FILE=$BATS_TMPDIR/asdfrc
-  cat >$ASDF_CONFIG_FILE <<-EOM
+  cat >"$ASDF_CONFIG_FILE" <<-EOM
 key1 = value1
 legacy_version_file = yes
 EOM
 
   ASDF_CONFIG_DEFAULT_FILE=$BATS_TMPDIR/asdfrc_defaults
-  cat >$ASDF_CONFIG_DEFAULT_FILE <<-EOM
+  cat >"$ASDF_CONFIG_DEFAULT_FILE" <<-EOM
 # i have  a comment, it's ok
 key2 = value2
 legacy_version_file = no
@@ -21,8 +21,8 @@ EOM
 }
 
 teardown() {
-  rm $ASDF_CONFIG_FILE
-  rm $ASDF_CONFIG_DEFAULT_FILE
+  rm "$ASDF_CONFIG_FILE"
+  rm "$ASDF_CONFIG_DEFAULT_FILE"
   unset ASDF_CONFIG_DEFAULT_FILE
   unset ASDF_CONFIG_FILE
 }
@@ -33,10 +33,10 @@ teardown() {
 }
 
 @test "get_config returns default value when the key does not exist" {
-  assert [ $(get_asdf_config_value "key2") = "value2" ]
+  assert_equal "$(get_asdf_config_value "key2")" "value2"
 }
 
 @test "get_config returns config file value when key exists" {
-  assert [ $(get_asdf_config_value "key1") = "value1" ]
-  assert [ $(get_asdf_config_value "legacy_version_file") = "yes" ]
+  assert_equal "$(get_asdf_config_value "key1")" "value1"
+  assert_equal "$(get_asdf_config_value "legacy_version_file")" "yes"
 }

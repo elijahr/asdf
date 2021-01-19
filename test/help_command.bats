@@ -12,7 +12,7 @@ setup() {
   run asdf install dummy 1.1
 
   PROJECT_DIR=$HOME/project
-  mkdir $PROJECT_DIR
+  mkdir "$PROJECT_DIR"
 }
 
 teardown() {
@@ -20,7 +20,7 @@ teardown() {
 }
 
 @test "help should show dummy plugin help" {
-  cd $PROJECT_DIR
+  cd "$PROJECT_DIR"
 
   run asdf help "dummy"
 
@@ -36,7 +36,7 @@ EOF
 }
 
 @test "help should show dummy plugin help specific to version when version is present" {
-  cd $PROJECT_DIR
+  cd "$PROJECT_DIR"
 
   run asdf help "dummy" "1.2.3"
 
@@ -50,12 +50,12 @@ Details specific for version 1.2.3
 EOF
   )"
   assert_success
-  echo $output
+  echo "$output"
   assert_output "$expected_output"
 }
 
 @test "help should fail for unknown plugins" {
-  cd $PROJECT_DIR
+  cd "$PROJECT_DIR"
 
   run asdf help "sunny"
   assert_failure
@@ -63,7 +63,7 @@ EOF
 }
 
 @test "help should fail when plugin doesn't have documentation callback" {
-  cd $PROJECT_DIR
+  cd "$PROJECT_DIR"
 
   run asdf help "legacy-dummy"
   assert_failure
@@ -71,7 +71,7 @@ EOF
 }
 
 @test "help should show asdf help when no plugin name is provided" {
-  cd $PROJECT_DIR
+  cd "$PROJECT_DIR"
 
   run asdf help
 

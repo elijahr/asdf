@@ -1,27 +1,30 @@
 #!/usr/bin/env bats
 
+# shellcheck disable=SC2030,2031
+
 load ../node_modules/bats-support/load
 load ../node_modules/bats-assert/load
 load test_helpers
 
 # Helper function to handle sourcing of asdf.sh
 source_asdf_sh() {
-  . $(dirname "$BATS_TEST_DIRNAME")/asdf.sh
+  # shellcheck source=SCRIPTDIR/../asdf.sh
+  source "$(dirname "$BATS_TEST_DIRNAME")/asdf.sh"
 }
 
 cleaned_path() {
-  echo $PATH | tr ':' '\n' | grep -v "asdf" | tr '\n' ':'
+  echo "$PATH" | tr ':' '\n' | grep -v "asdf" | tr '\n' ':'
 }
 
 @test "exports ASDF_DIR" {
-  result=$(
+  result="$(
     unset -f asdf
     unset ASDF_DIR
-    PATH=$(cleaned_path)
+    PATH="$(cleaned_path)"
 
     source_asdf_sh
-    echo $ASDF_DIR
-  )
+    echo "$ASDF_DIR"
+  )"
 
   output=$(echo "$result" | grep "asdf")
   assert_equal "$?" 0
@@ -29,14 +32,14 @@ cleaned_path() {
 }
 
 @test "adds asdf dirs to PATH" {
-  result=$(
+  result="$(
     unset -f asdf
     unset ASDF_DIR
-    PATH=$(cleaned_path)
+    PATH="$(cleaned_path)"
 
     source_asdf_sh
-    echo $PATH
-  )
+    echo "$PATH"
+  )"
 
   output=$(echo "$result" | grep "asdf")
   assert_equal "$?" 0
@@ -44,30 +47,30 @@ cleaned_path() {
 }
 
 @test "does not add paths to PATH more than once" {
-  result=$(
+  result="$(
     unset -f asdf
     unset ASDF_DIR
-    PATH=$(cleaned_path)
+    PATH="$(cleaned_path)"
 
     source_asdf_sh
     source_asdf_sh
-    echo $PATH
-  )
+    echo "$PATH"
+  )"
 
-  output=$(echo $PATH | tr ':' '\n' | grep "asdf" | sort | uniq -d)
+  output=$(echo "$PATH" | tr ':' '\n' | grep "asdf" | sort | uniq -d)
   assert_equal "$?" 0
   assert_output ""
 }
 
 @test "defines the asdf function" {
-  output=$(
+  output="$(
     unset -f asdf
     unset ASDF_DIR
-    PATH=$(cleaned_path)
+    PATH="$(cleaned_path)"
 
     source_asdf_sh
     type asdf
-  )
+  )"
 
   [[ $output =~ "is a function" ]]
 }

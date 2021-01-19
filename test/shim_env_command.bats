@@ -9,11 +9,11 @@ setup() {
   install_dummy_plugin
 
   PROJECT_DIR=$HOME/project
-  mkdir -p $PROJECT_DIR
-  cd $PROJECT_DIR
+  mkdir -p "$PROJECT_DIR"
+  cd "$PROJECT_DIR"
 
   # asdf lib needed to run generated shims
-  cp -rf $BATS_TEST_DIRNAME/../{bin,lib} $ASDF_DIR/
+  cp -rf "$BATS_TEST_DIRNAME"/../{bin,lib} "$ASDF_DIR"/
 }
 
 teardown() {
@@ -27,7 +27,7 @@ teardown() {
 }
 
 @test "asdf env should execute under the environment used for a shim" {
-  echo "dummy 1.0" >$PROJECT_DIR/.tool-versions
+  echo "dummy 1.0" >"$PROJECT_DIR"/.tool-versions
   run asdf install
 
   run asdf env dummy which dummy
@@ -36,30 +36,30 @@ teardown() {
 }
 
 @test "asdf env should execute under plugin custom environment used for a shim" {
-  echo "dummy 1.0" >$PROJECT_DIR/.tool-versions
+  echo "dummy 1.0" >"$PROJECT_DIR"/.tool-versions
   run asdf install
 
-  echo "export FOO=bar" >$ASDF_DIR/plugins/dummy/bin/exec-env
-  chmod +x $ASDF_DIR/plugins/dummy/bin/exec-env
+  echo "export FOO=bar" >"$ASDF_DIR"/plugins/dummy/bin/exec-env
+  chmod +x "$ASDF_DIR"/plugins/dummy/bin/exec-env
 
   run asdf env dummy
   assert_success
-  echo $output | grep 'FOO=bar'
+  echo "$output" | grep 'FOO=bar'
 }
 
 @test "asdf env should ignore plugin custom environment on system version" {
-  echo "dummy 1.0" >$PROJECT_DIR/.tool-versions
+  echo "dummy 1.0" >"$PROJECT_DIR"/.tool-versions
   run asdf install
 
-  echo "export FOO=bar" >$ASDF_DIR/plugins/dummy/bin/exec-env
-  chmod +x $ASDF_DIR/plugins/dummy/bin/exec-env
+  echo "export FOO=bar" >"$ASDF_DIR"/plugins/dummy/bin/exec-env
+  chmod +x "$ASDF_DIR"/plugins/dummy/bin/exec-env
 
-  echo "dummy system" >$PROJECT_DIR/.tool-versions
+  echo "dummy system" >"$PROJECT_DIR"/.tool-versions
 
   run asdf env dummy
   assert_success
 
-  run grep 'FOO=bar' <(echo $output)
+  run grep 'FOO=bar' <(echo "$output")
   assert_output ""
   assert_failure
 
@@ -69,7 +69,7 @@ teardown() {
 }
 
 @test "asdf env should set PATH correctly" {
-  echo "dummy 1.0" >$PROJECT_DIR/.tool-versions
+  echo "dummy 1.0" >"$PROJECT_DIR"/.tool-versions
   run asdf install
 
   run asdf env dummy
@@ -81,5 +81,5 @@ teardown() {
 
   # Should not contain duplicate colon
   run grep '::' <(echo "$path_line")
-  assert_equal "$duplicate_colon" ""
+  assert_output ""
 }

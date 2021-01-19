@@ -12,7 +12,7 @@ setup() {
   install_dummy_version "nightly-2000-01-01"
 
   PROJECT_DIR=$HOME/project
-  mkdir $PROJECT_DIR
+  mkdir "$PROJECT_DIR"
 }
 
 teardown() {
@@ -20,8 +20,8 @@ teardown() {
 }
 
 @test "current should derive from the current .tool-versions" {
-  cd $PROJECT_DIR
-  echo 'dummy 1.1.0' >>$PROJECT_DIR/.tool-versions
+  cd "$PROJECT_DIR"
+  echo 'dummy 1.1.0' >>"$PROJECT_DIR"/.tool-versions
   expected="dummy           1.1.0           $PROJECT_DIR/.tool-versions"
 
   run asdf current "dummy"
@@ -30,8 +30,8 @@ teardown() {
 }
 
 @test "current should handle long version name" {
-  cd $PROJECT_DIR
-  echo "dummy nightly-2000-01-01" >>$PROJECT_DIR/.tool-versions
+  cd "$PROJECT_DIR"
+  echo "dummy nightly-2000-01-01" >>"$PROJECT_DIR"/.tool-versions
   expected="dummy           nightly-2000-01-01 $PROJECT_DIR/.tool-versions"
 
   run asdf current "dummy"
@@ -40,8 +40,8 @@ teardown() {
 }
 
 @test "current should handle multiple versions" {
-  cd $PROJECT_DIR
-  echo "dummy 1.2.0 1.1.0" >>$PROJECT_DIR/.tool-versions
+  cd "$PROJECT_DIR"
+  echo "dummy 1.2.0 1.1.0" >>"$PROJECT_DIR"/.tool-versions
   expected="dummy           1.2.0 1.1.0     $PROJECT_DIR/.tool-versions"
 
   run asdf current "dummy"
@@ -50,9 +50,9 @@ teardown() {
 }
 
 @test "current should derive from the legacy file if enabled" {
-  cd $PROJECT_DIR
-  echo 'legacy_version_file = yes' >$HOME/.asdfrc
-  echo '1.2.0' >>$PROJECT_DIR/.dummy-version
+  cd "$PROJECT_DIR"
+  echo 'legacy_version_file = yes' >"$HOME"/.asdfrc
+  echo '1.2.0' >>"$PROJECT_DIR"/.dummy-version
   expected="dummy           1.2.0           $PROJECT_DIR/.dummy-version"
 
   run asdf current "dummy"
@@ -70,7 +70,7 @@ teardown() {
 }
 
 @test "current should error when no version is set" {
-  cd $PROJECT_DIR
+  cd "$PROJECT_DIR"
   expected='dummy           ______          No version set. Run "asdf <global|shell|local> dummy <version>"'
 
   run asdf current "dummy"
@@ -79,8 +79,8 @@ teardown() {
 }
 
 @test "current should error when a version is set that isn't installed" {
-  cd $PROJECT_DIR
-  echo 'dummy 9.9.9' >>$PROJECT_DIR/.tool-versions
+  cd "$PROJECT_DIR"
+  echo 'dummy 9.9.9' >>"$PROJECT_DIR"/.tool-versions
   expected='dummy           9.9.9           Not installed. Run "asdf install dummy 9.9.9"'
 
   run asdf current "dummy"
@@ -98,9 +98,9 @@ teardown() {
 
   install_mock_plugin "baz"
 
-  cd $PROJECT_DIR
-  echo 'dummy 1.1.0' >>$PROJECT_DIR/.tool-versions
-  echo 'foobar 1.0.0' >>$PROJECT_DIR/.tool-versions
+  cd "$PROJECT_DIR"
+  echo 'dummy 1.1.0' >>"$PROJECT_DIR"/.tool-versions
+  echo 'foobar 1.0.0' >>"$PROJECT_DIR"/.tool-versions
 
   run asdf current
   expected="baz             ______          No version set. Run \"asdf <global|shell|local> baz <version>\"
@@ -117,12 +117,13 @@ foobar          1.0.0           $PROJECT_DIR/.tool-versions"
   install_mock_plugin "y"
   install_mock_plugin_version "y" "2.1.0"
 
-  cd $PROJECT_DIR
-  echo 'dummy 1.1.0' >>$PROJECT_DIR/.tool-versions
-  echo 'y 2.1.0' >>$PROJECT_DIR/.tool-versions
+  cd "$PROJECT_DIR"
+  echo 'dummy 1.1.0' >>"$PROJECT_DIR"/.tool-versions
+  echo 'y 2.1.0' >>"$PROJECT_DIR"/.tool-versions
 
   run asdf current "y"
   assert_success
+  # shellcheck disable=SC2076
   [[ $output =~ "2.1.0" ]]
 }
 
@@ -136,8 +137,8 @@ foobar          1.0.0           $PROJECT_DIR/.tool-versions"
 }
 
 @test "current should handle comments" {
-  cd $PROJECT_DIR
-  echo "dummy 1.2.0  # this is a comment" >>$PROJECT_DIR/.tool-versions
+  cd "$PROJECT_DIR"
+  echo "dummy 1.2.0  # this is a comment" >>"$PROJECT_DIR"/.tool-versions
   expected="dummy           1.2.0           $PROJECT_DIR/.tool-versions"
 
   run asdf current "dummy"

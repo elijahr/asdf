@@ -18,7 +18,7 @@ setup() {
   install_dummy_plugin
 
   PROJECT_DIR=$HOME/project
-  mkdir $PROJECT_DIR
+  mkdir "$PROJECT_DIR"
 }
 
 teardown() {
@@ -29,39 +29,39 @@ teardown() {
   run asdf plugin-update dummy
   assert_success
   [[ $output =~ "Updating dummy..."* ]]
-  cd $ASDF_DIR/plugins/dummy
-  assert [ $(git rev-parse --abbrev-ref HEAD) = "master" ]
+  cd "$ASDF_DIR"/plugins/dummy
+  assert_equal "$(git rev-parse --abbrev-ref HEAD)" "master"
 }
 
 @test "asdf plugin-update should not remove plugin versions" {
   run asdf install dummy 1.1
   assert_success
-  assert [ $(cat $ASDF_DIR/installs/dummy/1.1/version) = "1.1" ]
+  assert_equal "$(cat "$ASDF_DIR"/installs/dummy/1.1/version)" "1.1"
   run asdf plugin-update dummy
   assert_success
-  assert [ -f $ASDF_DIR/installs/dummy/1.1/version ]
+  assert [ -f "$ASDF_DIR"/installs/dummy/1.1/version ]
   run asdf plugin-update --all
   assert_success
-  assert [ -f $ASDF_DIR/installs/dummy/1.1/version ]
+  assert [ -f "$ASDF_DIR"/installs/dummy/1.1/version ]
 }
 
 @test "asdf plugin-update should not remove plugins" {
   # dummy plugin is already installed
   run asdf plugin-update dummy
   assert_success
-  assert [ -d $ASDF_DIR/plugins/dummy ]
+  assert [ -d "$ASDF_DIR"/plugins/dummy ]
   run asdf plugin-update --all
   assert_success
-  assert [ -d $ASDF_DIR/plugins/dummy ]
+  assert [ -d "$ASDF_DIR"/plugins/dummy ]
 }
 
 @test "asdf plugin-update should not remove shims" {
   run asdf install dummy 1.1
-  assert [ -f $ASDF_DIR/shims/dummy ]
+  assert [ -f "$ASDF_DIR"/shims/dummy ]
   run asdf plugin-update dummy
   assert_success
-  assert [ -f $ASDF_DIR/shims/dummy ]
+  assert [ -f "$ASDF_DIR"/shims/dummy ]
   run asdf plugin-update --all
   assert_success
-  assert [ -f $ASDF_DIR/shims/dummy ]
+  assert [ -f "$ASDF_DIR"/shims/dummy ]
 }

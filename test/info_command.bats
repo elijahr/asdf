@@ -12,7 +12,7 @@ setup() {
   run asdf install dummy 1.1
 
   PROJECT_DIR=$HOME/project
-  mkdir $PROJECT_DIR
+  mkdir "$PROJECT_DIR"
 }
 
 teardown() {
@@ -20,7 +20,7 @@ teardown() {
 }
 
 @test "info should show os, shell and asdf debug information" {
-  cd $PROJECT_DIR
+  cd "$PROJECT_DIR"
 
   run asdf info
 
