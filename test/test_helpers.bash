@@ -4,6 +4,14 @@
 # tests fail when it is set to something other than the temp dir.
 unset ASDF_DIR
 
+if echo "$PATH" | grep -qF ";"; then
+  # Windows
+  export PATH_COLON=";"
+else
+  # Unix
+  export PATH_COLON=":"
+fi
+
 # shellcheck source=lib/utils.bash
 . "$(dirname "$BATS_TEST_DIRNAME")"/lib/utils.bash
 

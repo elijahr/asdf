@@ -55,7 +55,7 @@ teardown() {
   touch "$PROJECT_DIR"/sys/dummy
   chmod +x "$PROJECT_DIR"/sys/dummy
 
-  run env PATH="$PATH":"$PROJECT_DIR"/sys asdf which "dummy"
+  run env PATH="${PATH}${PATH_COLON}${PROJECT_DIR}"/sys asdf which "dummy"
   assert_success
   assert_output "$PROJECT_DIR/sys/dummy"
 }
@@ -104,7 +104,7 @@ teardown() {
   echo 'dummy 1.0' >"$PROJECT_DIR"/.tool-versions
   rm "$ASDF_DIR/installs/dummy/1.0/bin/dummy"
 
-  run env PATH="$PATH":"$ASDF_DIR"/shims asdf which dummy
+  run env PATH="${PATH}${PATH_COLON}${ASDF_DIR}"/shims asdf which dummy
   assert_failure
   assert_output "No dummy executable found for dummy 1.0"
 }

@@ -13,6 +13,14 @@ else
   current_script_path="$0"
 fi
 
+if echo "$PATH" | grep -qF ";"; then
+  # Windows
+  export PATH_COLON=";"
+else
+  # Unix
+  export PATH_COLON=":"
+fi
+
 export ASDF_DIR
 ASDF_DIR="$(dirname "$current_script_path")"
 # shellcheck disable=SC2016
@@ -24,11 +32,11 @@ ASDF_DIR="$(dirname "$current_script_path")"
 # replace all occurrences - ${parameter//pattern/string}
 ASDF_BIN="${ASDF_DIR}/bin"
 ASDF_USER_SHIMS="${ASDF_DATA_DIR:-$HOME/.asdf}/shims"
-[[ ":$PATH:" == *":${ASDF_BIN}:"* ]] && PATH="${PATH//$ASDF_BIN:/}"
-[[ ":$PATH:" == *":${ASDF_USER_SHIMS}:"* ]] && PATH="${PATH//$ASDF_USER_SHIMS:/}"
+[[ "${PATH_COLON}${PATH}${PATH_COLON}" == *"${PATH_COLON}${ASDF_BIN}${PATH_COLON}"* ]] && PATH="${PATH//${ASDF_BIN}${PATH_COLON}/}"
+[[ "${PATH_COLON}${PATH}${PATH_COLON}" == *"${PATH_COLON}${ASDF_USER_SHIMS}${PATH_COLON}"* ]] && PATH="${PATH//${ASDF_USER_SHIMS}${PATH_COLON}/}"
 # add to front of $PATH
-PATH="${ASDF_BIN}:$PATH"
-PATH="${ASDF_USER_SHIMS}:$PATH"
+PATH="${ASDF_BIN}${PATH_COLON}${PATH}"
+PATH="${ASDF_USER_SHIMS}${PATH_COLON}${PATH}"
 
 # shellcheck source=lib/asdf.sh
 # Load the asdf wrapper function

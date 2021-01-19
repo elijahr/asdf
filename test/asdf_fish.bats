@@ -9,7 +9,7 @@ setup() {
 }
 
 cleaned_path() {
-  echo "$PATH" | tr ':' '\n' | grep -v "asdf" | tr '\n' ' '
+  echo "$PATH" | tr "$PATH_COLON" '\n' | grep -v "asdf" | tr '\n' "$PATH_COLON"
 }
 
 @test "exports ASDF_DIR" {
@@ -55,7 +55,7 @@ cleaned_path() {
     echo \$PATH
   ")
 
-  output=$(echo "$PATH" | tr ':' '\n' | grep "asdf" | sort | uniq -d)
+  output=$(echo "$PATH" | tr "$PATH_COLON" '\n' | grep "asdf" | sort | uniq -d)
   assert_equal "$?" 0
   assert_output ""
 }

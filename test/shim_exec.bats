@@ -203,7 +203,7 @@ teardown() {
   echo "echo System" >"$PROJECT_DIR"/foo/dummy
   chmod +x "$PROJECT_DIR"/foo/dummy
 
-  run env PATH="$PATH":"$PROJECT_DIR"/foo "$ASDF_DIR"/shims/dummy hello
+  run env PATH="${PATH}${PATH_COLON}${PROJECT_DIR}"/foo "$ASDF_DIR"/shims/dummy hello
   assert_output "System"
 }
 
@@ -232,7 +232,7 @@ teardown() {
   echo "echo System" >"$PROJECT_DIR"/foo/dummy
   chmod +x "$PROJECT_DIR"/foo/dummy
 
-  run env PATH="$PATH":"$PROJECT_DIR"/foo "$ASDF_DIR"/shims/dummy hello
+  run env PATH="${PATH}${PATH_COLON}${PROJECT_DIR}"/foo "$ASDF_DIR"/shims/dummy hello
   assert_output "System"
 }
 
@@ -283,7 +283,7 @@ teardown() {
   echo 'echo x$FOO System' >"$PROJECT_DIR"/sys/foo
   chmod +x "$PROJECT_DIR"/sys/foo
 
-  run env PATH="$PATH":"$PROJECT_DIR"/sys "$ASDF_DIR"/shims/foo
+  run env PATH="${PATH}${PATH_COLON}${PROJECT_DIR}"/sys "$ASDF_DIR"/shims/foo
   assert_output "x System"
 }
 
@@ -338,7 +338,7 @@ teardown() {
   echo 'which dummy' >"$PROJECT_DIR"/sys/dummy
   chmod +x "$PROJECT_DIR"/sys/dummy
 
-  run env PATH="$PATH":"$PROJECT_DIR"/sys "$ASDF_DIR"/shims/dummy
+  run env PATH="${PATH}${PATH_COLON}${PROJECT_DIR}"/sys "$ASDF_DIR"/shims/dummy
   echo $status "$output"
   assert_output "$ASDF_DIR/shims/dummy"
 }
@@ -440,7 +440,7 @@ EOM
 pre_dummy_dummy = pre $1 no $plugin_name $2
 EOM
 
-  run env PATH="$PATH":"$HOME"/hook "$ASDF_DIR"/shims/dummy hello world
+  run env PATH="${PATH}${PATH_COLON}${HOME}"/hook "$ASDF_DIR"/shims/dummy hello world
   assert_output "hello no dummy world"
   assert_failure
 }
