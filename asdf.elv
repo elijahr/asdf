@@ -241,3 +241,5 @@ fn arg-completer {|@argz|
     }
   }
 }
+
+set edit:completion:arg-completer[asdf] = $arg-completer~

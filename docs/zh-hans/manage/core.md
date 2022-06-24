@@ -263,7 +263,6 @@ rm -rf $HOME/.tool-versions $HOME/.asdfrc
 
 ```shell
 use asdf _asdf; var asdf~ = $_asdf:asdf~
-edit:completion:arg-completer[asdf] = $_asdf:arg-completer~
 ```
 
 以及使用以下命令卸载 `asdf` 模块：
@@ -292,7 +291,6 @@ rm -rf $HOME/.tool-versions $HOME/.asdfrc
 
 ```shell
 use asdf _asdf; var asdf~ = $_asdf:asdf~
-edit:completion:arg-completer[asdf] = $_asdf:arg-completer~
 ```
 
 以及使用以下命令卸载 `asdf` 模块：
@@ -321,7 +319,6 @@ rm -rf $HOME/.tool-versions $HOME/.asdfrc
 
 ```shell
 use asdf _asdf; var asdf~ = $_asdf:asdf~
-edit:completion:arg-completer[asdf] = $_asdf:arg-completer~
 ```
 
 以及使用以下命令卸载 `asdf` 模块：
