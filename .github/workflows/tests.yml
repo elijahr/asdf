@@ -14,13 +14,17 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os:
-          - macos-10.15
-          - macos-11
-          - macos-12
-          - ubuntu-18.04
-          - ubuntu-20.04
-          - ubuntu-22.04
+        include:
+          - os: macos-10.15
+          - os: macos-11
+          - os: macos-12
+          - os: ubuntu-18.04
+            elvish: v0.17.0
+          - os: ubuntu-20.04
+            elvish: v0.18.0
+          - os: ubuntu-22.04
+            elvish: v0.18.0
+
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout code
@@ -40,11 +44,11 @@ jobs:
           sudo apt-get -y install fish curl
 
           # Download elvish binary and add to path
-          curl https://dl.elv.sh/linux-amd64/elvish-v0.18.0.tar.gz -o elvish-v0.18.0.tar.gz
-          tar xzf elvish-v0.18.0.tar.gz
-          rm elvish-v0.18.0.tar.gz
+          curl https://dl.elv.sh/linux-amd64/elvish-${{ matrix.elvish }}.tar.gz -o elvish-${{ matrix.elvish }}.tar.gz
+          tar xzf elvish-${{ matrix.elvish }}.tar.gz
+          rm elvish-${{ matrix.elvish }}.tar.gz
           mkdir -p "$HOME/bin"
-          mv elvish-v0.18.0 "$HOME/bin/elvish"
+          mv elvish-${{ matrix.elvish }} "$HOME/bin/elvish"
           echo "$HOME/bin" >>"$GITHUB_PATH"
 
       - name: Install bats
