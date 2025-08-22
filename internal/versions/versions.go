@@ -66,7 +66,7 @@ func (e VersionAlreadyInstalledError) Error() string {
 // directory. Typically this will just be a single version, if not already
 // installed, but it may be multiple versions if multiple versions for the tool
 // are specified in the .tool-versions file.
-func InstallAll(conf config.Config, dir string, stdOut io.Writer, stdErr io.Writer) (failures []error) {
+func InstallAll(conf config.Config, dir string, keepDownload bool, stdOut io.Writer, stdErr io.Writer) (failures []error) {
 	plugins, err := plugins.List(conf, false, false)
 	if err != nil {
 		return []error{fmt.Errorf("unable to list plugins: %w", err)}
@@ -76,7 +76,7 @@ func InstallAll(conf config.Config, dir string, stdOut io.Writer, stdErr io.Writ
 	// closest .tool-versions file, but for now that is too complicated to
 	// implement.
 	for _, plugin := range plugins {
-		err := Install(conf, plugin, dir, stdOut, stdErr)
+		err := Install(conf, plugin, dir, keepDownload, stdOut, stdErr)
 		if err != nil {
 			failures = append(failures, err)
 		}
@@ -89,7 +89,7 @@ func InstallAll(conf config.Config, dir string, stdOut io.Writer, stdErr io.Writ
 // Typically this will just be a single version, if not already installed, but
 // it may be multiple versions if multiple versions for the tool are specified
 // in the .tool-versions file.
-func Install(conf config.Config, plugin plugins.Plugin, dir string, stdOut io.Writer, stdErr io.Writer) error {
+func Install(conf config.Config, plugin plugins.Plugin, dir string, keepDownload bool, stdOut io.Writer, stdErr io.Writer) error {
 	err := plugin.Exists()
 	if err != nil {
 		return err
@@ -105,7 +105,7 @@ func Install(conf config.Config, plugin plugins.Plugin, dir string, stdOut io.Wr
 	}
 
 	for _, version := range versions.Versions {
-		iErr := InstallOneVersion(conf, plugin, version, false, stdOut, stdErr)
+		iErr := InstallOneVersion(conf, plugin, version, keepDownload, stdOut, stdErr)
 		var vaiErr VersionAlreadyInstalledError
 		if errors.As(iErr, &vaiErr) {
 			err = errors.Join(err, iErr)
@@ -120,7 +120,7 @@ func Install(conf config.Config, plugin plugins.Plugin, dir string, stdOut io.Wr
 // InstallVersion installs a version of a specific tool, the version may be an
 // exact version, or it may be `latest` or `latest` a regex query in order to
 // select the latest version matching the provided pattern.
-func InstallVersion(conf config.Config, plugin plugins.Plugin, version toolversions.Version, stdOut io.Writer, stdErr io.Writer) error {
+func InstallVersion(conf config.Config, plugin plugins.Plugin, version toolversions.Version, keepDownload bool, stdOut io.Writer, stdErr io.Writer) error {
 	err := plugin.Exists()
 	if err != nil {
 		return err
@@ -134,7 +134,7 @@ func InstallVersion(conf config.Config, plugin plugins.Plugin, version toolversi
 		}
 	}
 
-	return InstallOneVersion(conf, plugin, resolvedVersion, false, stdOut, stdErr)
+	return InstallOneVersion(conf, plugin, resolvedVersion, keepDownload, stdOut, stdErr)
 }
 
 // InstallOneVersion installs a specific version of a specific tool
