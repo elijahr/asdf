@@ -28,7 +28,7 @@ func TestInstallAll(t *testing.T) {
 		content := fmt.Sprintf("%s %s\n%s %s", plugin.Name, version, secondPlugin.Name, version)
 		writeVersionFile(t, currentDir, content)
 
-		err := InstallAll(conf, currentDir, &stdout, &stderr)
+		err := InstallAll(conf, currentDir, false, &stdout, &stderr)
 		assert.Nil(t, err)
 
 		assertVersionInstalled(t, conf.DataDir, plugin.Name, version)
@@ -46,7 +46,7 @@ func TestInstallAll(t *testing.T) {
 		content := fmt.Sprintf("%s %s\n", plugin.Name, version)
 		writeVersionFile(t, currentDir, content)
 
-		err := InstallAll(conf, currentDir, &stdout, &stderr)
+		err := InstallAll(conf, currentDir, false, &stdout, &stderr)
 		assert.ErrorContains(t, err[0], "no version set")
 
 		assertVersionInstalled(t, conf.DataDir, plugin.Name, version)
@@ -64,11 +64,41 @@ func TestInstallAll(t *testing.T) {
 		content := fmt.Sprintf("%s %s\n%s %s", secondPlugin.Name, "non-existent-version", plugin.Name, version)
 		writeVersionFile(t, currentDir, content)
 
-		err := InstallAll(conf, currentDir, &stdout, &stderr)
+		err := InstallAll(conf, currentDir, false, &stdout, &stderr)
 		assert.Empty(t, err)
 
 		assertNotInstalled(t, conf.DataDir, secondPlugin.Name, version)
 		assertVersionInstalled(t, conf.DataDir, plugin.Name, version)
+	})
+
+	t.Run("keeps download directories when keepDownload is true", func(t *testing.T) {
+		conf, plugin := generateConfig(t)
+		stdout, stderr := buildOutputs()
+		currentDir := t.TempDir()
+		secondPlugin := installPlugin(t, conf, "dummy_plugin", "another")
+		version := "1.0.0"
+
+		// Write a version file
+		content := fmt.Sprintf("%s %s\n%s %s", plugin.Name, version, secondPlugin.Name, version)
+		writeVersionFile(t, currentDir, content)
+
+		errs := InstallAll(conf, currentDir, true, &stdout, &stderr)
+		assert.Empty(t, errs)
+
+		// Check download directories are preserved for both plugins
+		downloadPath1 := filepath.Join(conf.DataDir, "downloads", plugin.Name, version)
+		pathInfo1, statErr1 := os.Stat(downloadPath1)
+		assert.Nil(t, statErr1)
+		assert.True(t, pathInfo1.IsDir())
+
+		downloadPath2 := filepath.Join(conf.DataDir, "downloads", secondPlugin.Name, version)
+		pathInfo2, statErr2 := os.Stat(downloadPath2)
+		assert.Nil(t, statErr2)
+		assert.True(t, pathInfo2.IsDir())
+
+		// Verify installations were successful
+		assertVersionInstalled(t, conf.DataDir, plugin.Name, version)
+		assertVersionInstalled(t, conf.DataDir, secondPlugin.Name, version)
 	})
 }
 
@@ -84,7 +114,7 @@ func TestInstall(t *testing.T) {
 		err := os.WriteFile(filepath.Join(currentDir, ".tool-versions"), data, 0o666)
 		assert.Nil(t, err)
 
-		err = Install(conf, plugin, currentDir, &stdout, &stderr)
+		err = Install(conf, plugin, currentDir, false, &stdout, &stderr)
 		assert.Nil(t, err)
 
 		assertVersionInstalled(t, conf.DataDir, plugin.Name, version)
@@ -93,7 +123,7 @@ func TestInstall(t *testing.T) {
 	t.Run("returns error when plugin doesn't exist", func(t *testing.T) {
 		conf, _ := generateConfig(t)
 		stdout, stderr := buildOutputs()
-		err := Install(conf, plugins.New(conf, "non-existent"), currentDir, &stdout, &stderr)
+		err := Install(conf, plugins.New(conf, "non-existent"), currentDir, false, &stdout, &stderr)
 		assert.IsType(t, plugins.PluginMissing{}, err)
 	})
 
@@ -101,7 +131,7 @@ func TestInstall(t *testing.T) {
 		conf, _ := generateConfig(t)
 		stdout, stderr := buildOutputs()
 		currentDir := t.TempDir()
-		err := Install(conf, plugin, currentDir, &stdout, &stderr)
+		err := Install(conf, plugin, currentDir, false, &stdout, &stderr)
 		assert.EqualError(t, err, "no version set")
 	})
 
@@ -116,7 +146,7 @@ func TestInstall(t *testing.T) {
 		err := os.WriteFile(filepath.Join(currentDir, ".tool-versions"), data, 0o666)
 		assert.Nil(t, err)
 
-		err = Install(conf, plugin, currentDir, &stdout, &stderr)
+		err = Install(conf, plugin, currentDir, false, &stdout, &stderr)
 		assert.Nil(t, err)
 
 		assertVersionInstalled(t, conf.DataDir, plugin.Name, "1.0.0")
@@ -134,17 +164,41 @@ func TestInstall(t *testing.T) {
 		err := os.WriteFile(filepath.Join(currentDir, ".tool-versions"), data, 0o666)
 		assert.NoError(t, err)
 
-		err = Install(conf, plugin, currentDir, &stdout, &stderr)
+		err = Install(conf, plugin, currentDir, false, &stdout, &stderr)
 		assert.NoError(t, err)
 
 		assertVersionInstalled(t, conf.DataDir, plugin.Name, "1.0.0")
 		assertVersionInstalled(t, conf.DataDir, plugin.Name, "2.0.0")
 
-		err = Install(conf, plugin, currentDir, &stdout, &stderr)
+		err = Install(conf, plugin, currentDir, false, &stdout, &stderr)
 		assert.Error(t, err)
 		// Expect a VersionAlreadyInstalledError
 		var eerr VersionAlreadyInstalledError
 		assert.ErrorAs(t, err, &eerr)
+	})
+
+	t.Run("keeps download directory when keepDownload is true", func(t *testing.T) {
+		conf, plugin := generateConfig(t)
+		stdout, stderr := buildOutputs()
+		currentDir := t.TempDir()
+		version := "1.0.0"
+
+		// Write a version file
+		data := []byte(fmt.Sprintf("%s %s", plugin.Name, version))
+		err := os.WriteFile(filepath.Join(currentDir, ".tool-versions"), data, 0o666)
+		assert.Nil(t, err)
+
+		err = Install(conf, plugin, currentDir, true, &stdout, &stderr)
+		assert.Nil(t, err)
+
+		// Check download directory is preserved
+		downloadPath := filepath.Join(conf.DataDir, "downloads", plugin.Name, version)
+		pathInfo, err := os.Stat(downloadPath)
+		assert.Nil(t, err)
+		assert.True(t, pathInfo.IsDir())
+
+		// Verify installation was successful
+		assertVersionInstalled(t, conf.DataDir, plugin.Name, version)
 	})
 }
 
@@ -155,7 +209,7 @@ func TestInstallVersion(t *testing.T) {
 		conf, _ := generateConfig(t)
 		stdout, stderr := buildOutputs()
 		version := toolversions.Version{Type: "version", Value: "1.2.3"}
-		err := InstallVersion(conf, plugins.New(conf, "non-existent"), version, &stdout, &stderr)
+		err := InstallVersion(conf, plugins.New(conf, "non-existent"), version, false, &stdout, &stderr)
 		assert.IsType(t, plugins.PluginMissing{}, err)
 	})
 
@@ -163,7 +217,7 @@ func TestInstallVersion(t *testing.T) {
 		conf, plugin := generateConfig(t)
 		stdout, stderr := buildOutputs()
 		version := toolversions.Version{Type: "latest", Value: ""}
-		err := InstallVersion(conf, plugin, version, &stdout, &stderr)
+		err := InstallVersion(conf, plugin, version, false, &stdout, &stderr)
 		assert.Nil(t, err)
 
 		assertVersionInstalled(t, conf.DataDir, plugin.Name, "2.0.0")
@@ -174,10 +228,43 @@ func TestInstallVersion(t *testing.T) {
 		stdout, stderr := buildOutputs()
 
 		version := toolversions.Version{Type: "latest", Value: "^1."}
-		err := InstallVersion(conf, plugin, version, &stdout, &stderr)
+		err := InstallVersion(conf, plugin, version, false, &stdout, &stderr)
 		assert.Nil(t, err)
 
 		assertVersionInstalled(t, conf.DataDir, plugin.Name, "1.1.0")
+	})
+
+	t.Run("keeps download directory when keepDownload is true", func(t *testing.T) {
+		conf, plugin := generateConfig(t)
+		stdout, stderr := buildOutputs()
+		version := toolversions.Version{Type: "version", Value: "1.0.0"}
+		err := InstallVersion(conf, plugin, version, true, &stdout, &stderr)
+		assert.Nil(t, err)
+
+		// Check download directory is preserved
+		downloadPath := filepath.Join(conf.DataDir, "downloads", plugin.Name, "1.0.0")
+		pathInfo, err := os.Stat(downloadPath)
+		assert.Nil(t, err)
+		assert.True(t, pathInfo.IsDir())
+
+		// Verify installation was successful
+		assertVersionInstalled(t, conf.DataDir, plugin.Name, "1.0.0")
+	})
+
+	t.Run("deletes download directory when keepDownload is false", func(t *testing.T) {
+		conf, plugin := generateConfig(t)
+		stdout, stderr := buildOutputs()
+		version := toolversions.Version{Type: "version", Value: "1.0.0"}
+		err := InstallVersion(conf, plugin, version, false, &stdout, &stderr)
+		assert.Nil(t, err)
+
+		// Check download directory is removed
+		downloadPath := filepath.Join(conf.DataDir, "downloads", plugin.Name, "1.0.0")
+		_, statErr := os.Stat(downloadPath)
+		assert.True(t, os.IsNotExist(statErr), "Download directory should be deleted")
+
+		// Verify installation was successful
+		assertVersionInstalled(t, conf.DataDir, plugin.Name, "1.0.0")
 	})
 }
 
@@ -318,6 +405,37 @@ func TestInstallOneVersion(t *testing.T) {
 
 		// no-download install script prints 'install'
 		assert.Equal(t, "install", stdout.String())
+	})
+
+	t.Run("keeps download directory when keepDownload is true", func(t *testing.T) {
+		conf, plugin := generateConfig(t)
+		stdout, stderr := buildOutputs()
+		err := InstallOneVersion(conf, plugin, "1.0.0", true, &stdout, &stderr)
+		assert.Nil(t, err)
+
+		// Check download directory is preserved
+		downloadPath := filepath.Join(conf.DataDir, "downloads", plugin.Name, "1.0.0")
+		pathInfo, err := os.Stat(downloadPath)
+		assert.Nil(t, err)
+		assert.True(t, pathInfo.IsDir())
+
+		// Verify installation was successful
+		assertVersionInstalled(t, conf.DataDir, plugin.Name, "1.0.0")
+	})
+
+	t.Run("deletes download directory when keepDownload is false", func(t *testing.T) {
+		conf, plugin := generateConfig(t)
+		stdout, stderr := buildOutputs()
+		err := InstallOneVersion(conf, plugin, "1.0.0", false, &stdout, &stderr)
+		assert.Nil(t, err)
+
+		// Check download directory is removed after successful installation
+		downloadPath := filepath.Join(conf.DataDir, "downloads", plugin.Name, "1.0.0")
+		_, statErr := os.Stat(downloadPath)
+		assert.True(t, os.IsNotExist(statErr), "Download directory should be deleted")
+
+		// Verify installation was successful
+		assertVersionInstalled(t, conf.DataDir, plugin.Name, "1.0.0")
 	})
 }
 

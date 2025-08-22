@@ -1028,13 +1028,21 @@ func pluginTestCommand(l *log.Logger, args []string, toolVersion, ref string) {
 		failTest(l, "list-all did not return any version")
 	}
 
-	// grab first version returned by list-all callback if no version provided as
-	// a CLI argument
+	// If no version is provided, set it to "latest" before determining which version to install
 	if toolVersion == "" {
-		toolVersion = allVersions[0]
+		toolVersion = "latest"
 	}
 
-	err = versions.InstallOneVersion(conf, plugin, toolVersion, false, os.Stdout, os.Stderr)
+	// Determine the version to install using the same logic as installCommand
+	parsedVersion := toolversions.ParseFromCliArg(toolVersion)
+
+	// Install the selected version
+	if parsedVersion.Type == "latest" {
+		err = versions.InstallVersion(conf, plugin, parsedVersion, false, os.Stdout, os.Stderr)
+	} else {
+		err = versions.InstallOneVersion(conf, plugin, toolVersion, false, os.Stdout, os.Stderr)
+	}
+
 	if err != nil {
 		failTest(l, "install exited with an error")
 	}
@@ -1069,7 +1077,7 @@ func installCommand(logger *log.Logger, toolName, version string, keepDownload b
 
 	if toolName == "" {
 		// Install all versions
-		errs := versions.InstallAll(conf, dir, os.Stdout, os.Stderr)
+		errs := versions.InstallAll(conf, dir, keepDownload, os.Stdout, os.Stderr)
 		if len(errs) > 0 {
 			for _, err := range errs {
 				// Don't print error if no version set, this just means the current
@@ -1099,7 +1107,7 @@ func installCommand(logger *log.Logger, toolName, version string, keepDownload b
 		plugin := plugins.New(conf, toolName)
 
 		if version == "" {
-			err = versions.Install(conf, plugin, dir, os.Stdout, os.Stderr)
+			err = versions.Install(conf, plugin, dir, keepDownload, os.Stdout, os.Stderr)
 			if err != nil {
 				var vaiErr versions.VersionAlreadyInstalledError
 				if errors.As(err, &vaiErr) {
@@ -1119,11 +1127,8 @@ func installCommand(logger *log.Logger, toolName, version string, keepDownload b
 			parsedVersion := toolversions.ParseFromCliArg(version)
 
 			if parsedVersion.Type == "latest" {
-				err = versions.InstallVersion(conf, plugin, parsedVersion, os.Stdout, os.Stderr)
+				err = versions.InstallVersion(conf, plugin, parsedVersion, keepDownload, os.Stdout, os.Stderr)
 			} else {
-				// Adding this here to get tests passing. The other versions.Install*
-				// calls here could have a keepDownload argument added as well. PR
-				// welcome!
 				err = versions.InstallOneVersion(conf, plugin, version, keepDownload, os.Stdout, os.Stderr)
 			}
 
