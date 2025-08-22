@@ -48,10 +48,69 @@ latest asdf binary manually from the asdf website.
 Please visit https://asdf-vm.com/ or https://github.com/asdf-vm/asdf for more
 details.`
 
+// const rootCommandTemplate = `NAME:
+//    {{.Name}} - {{.Usage}}
+
+// USAGE:
+//    {{.Name}}{{if .VisibleFlags}} [global options]{{end}}{{if .Commands}} command [command options]{{end}} [arguments...]
+
+// VERSION:
+//    {{.Version}}
+
+// COMMANDS:{{range .Commands}}{{if not .HideHelp}}
+//    {{join .Names ", "}}{{"\t"}}{{.Usage}}{{end}}{{end}}
+
+// GLOBAL OPTIONS:
+//    {{range .VisibleFlags}}{{.}}
+//    {{end}}
+
+// COPYRIGHT:
+//    {{.Copyright}}
+// `
+
+const commandHelpTemplate = `NAME:
+   {{.Name}} - {{.Usage}}
+
+USAGE:
+   {{if .UsageText}}{{.UsageText}} {{else if .Root}}{{.Root.Name}} {{.Name}}{{else}}{{.Name}} {{end}}{{if .Commands}}[{{range $i, $cmd := .Commands}}{{if $i}}|{{end}}{{index $cmd.Names 0}}{{end}}]{{end}}
+
+COMMANDS:{{range .Commands}}
+   {{join .Names ", "}}{{"\t"}}{{.Usage}}{{end}}
+
+OPTIONS:
+   {{range .VisibleFlags}}{{.}}
+   {{end}}
+`
+
+const subcommandHelpTemplate = `NAME:
+   {{.Name}} - {{.Usage}}
+
+USAGE:
+   {{if .UsageText}}{{.UsageText}} {{else if .Root}}{{.Root.Name}} {{.Name}} {{else}}{{.Name}} {{end}}{{if .Commands}}[command]{{end}}
+
+COMMANDS:{{range .Commands}}
+   {{join .Names ", "}}{{"\t"}}{{.Usage}}{{end}}
+
+OPTIONS:
+   {{range .VisibleFlags}}{{.}}
+   {{end}}
+`
+
 // Execute defines the full CLI API and then runs it
 func Execute(version string) {
 	logger := log.New(os.Stderr, "", 0)
 	log.SetFlags(0)
+
+	// Customize all three help templates for different command levels
+
+	// Root command template (for "asdf --help")
+	// cli.RootCommandHelpTemplate = rootCommandTemplate
+
+	// Command template (for parent commands like "asdf plugin --help")
+	cli.CommandHelpTemplate = commandHelpTemplate
+
+	// Subcommand template (for leaf commands like "asdf plugin list --help")
+	cli.SubcommandHelpTemplate = subcommandHelpTemplate
 
 	app := &cli.Command{
 		Name:      "asdf",
@@ -62,9 +121,11 @@ func Execute(version string) {
 		},
 		Usage:     "The multiple runtime version manager",
 		UsageText: usageText,
+		HideHelp: false,
 		Commands: []*cli.Command{
 			{
-				Name: "cmd",
+				Name:      "cmd",
+				Usage:     "Run a command provided by a plugin",
 				Action: func(_ context.Context, cmd *cli.Command) error {
 					args := cmd.Args().Slice()
 
@@ -72,14 +133,16 @@ func Execute(version string) {
 				},
 			},
 			{
-				Name: "completion",
+				Name:      "completion",
+				Usage:     "Generate shell completion script",
 				Action: func(_ context.Context, cmd *cli.Command) error {
 					shell := cmd.Args().Get(0)
 					return completionCommand(logger, shell)
 				},
 			},
 			{
-				Name: "current",
+				Name:  "current",
+				Usage: "Display current version set or being used for all packages",
 				Flags: []cli.Flag{
 					&cli.BoolFlag{
 						Name:  "no-header",
@@ -94,7 +157,8 @@ func Execute(version string) {
 				},
 			},
 			{
-				Name: "env",
+				Name:  "env",
+				Usage: "Runs util (default: `env`) inside the environment used for command shim execution",
 				Action: func(_ context.Context, cmd *cli.Command) error {
 					shimmedCommand := cmd.Args().Get(0)
 					args := cmd.Args().Slice()
@@ -103,7 +167,8 @@ func Execute(version string) {
 				},
 			},
 			{
-				Name: "exec",
+				Name:  "exec",
+				Usage: "Executes the command shim for current version",
 				// We want all arguments to exec to remain unparsed so we can pass them
 				// directly to the command asdf whill exec on behalf of the shim/user.
 				// SkipFlagParsing tells urfave/cli to do this.
@@ -116,7 +181,8 @@ func Execute(version string) {
 				},
 			},
 			{
-				Name: "help",
+				Name:  "help",
+				Usage: "Output documentation for plugin and tool",
 				Action: func(_ context.Context, cmd *cli.Command) error {
 					toolName := cmd.Args().Get(0)
 					toolVersion := cmd.Args().Get(1)
@@ -124,7 +190,8 @@ func Execute(version string) {
 				},
 			},
 			{
-				Name: "info",
+				Name:  "info",
+				Usage: "Print OS, Shell and ASDF debug information",
 				Action: func(_ context.Context, _ *cli.Command) error {
 					conf, err := config.LoadConfig()
 					if err != nil {
@@ -136,14 +203,16 @@ func Execute(version string) {
 				},
 			},
 			{
-				Name: "version",
+				Name:  "version",
+				Usage: "Print the currently installed version of ASDF",
 				Action: func(_ context.Context, _ *cli.Command) error {
 					fmt.Fprintf(os.Stdout, "%s\n", version)
 					return nil
 				},
 			},
 			{
-				Name: "install",
+				Name:  "install",
+				Usage: "Install all the package versions listed in the .tool-versions file",
 				Flags: []cli.Flag{
 					&cli.BoolFlag{
 						Name:  "keep-download",
@@ -157,7 +226,8 @@ func Execute(version string) {
 				},
 			},
 			{
-				Name: "latest",
+				Name:  "latest",
+				Usage: "Show latest stable version of a package",
 				Flags: []cli.Flag{
 					&cli.BoolFlag{
 						Name:  "all",
@@ -173,30 +243,43 @@ func Execute(version string) {
 				},
 			},
 			{
-				Name: "list",
+				Name:  "list",
+				Usage: "List installed versions of a package and optionally filter the versions",
 				Action: func(_ context.Context, cmd *cli.Command) error {
 					args := cmd.Args()
 					return listCommand(logger, args.Get(0), args.Get(1), args.Get(2))
 				},
 			},
 			{
-				Name: "plugin",
+				Name:  "plugin",
+				Usage: "Manage plugins",
 				Commands: []*cli.Command{
 					{
-						Name: "add",
+						Name:  "add",
+						Usage: "Add a plugin from the plugin repo OR, add a Git repo as a plugin by specifying the name and repo url",
+						UsageText: "asdf plugin add",
+						Flags: []cli.Flag{
+							&cli.StringFlag{
+								Name:  "gitref",
+								Usage: "Git reference (branch, tag, or commit) to use",
+							},
+						},
 						Action: func(_ context.Context, cmd *cli.Command) error {
 							args := cmd.Args()
+							gitRef := cmd.String("gitref")
 							conf, err := config.LoadConfig()
 							if err != nil {
 								logger.Printf("error loading config: %s", err)
 								return err
 							}
 
-							return pluginAddCommand(cmd, conf, logger, args.Get(0), args.Get(1))
+							return pluginAddCommand(cmd, conf, logger, args.Get(0), args.Get(1), gitRef)
 						},
 					},
 					{
-						Name: "list",
+						Name:  "list",
+						Usage: "List installed plugins. Optionally show git urls and git-ref",
+						UsageText: "asdf plugin list",
 						Flags: []cli.Flag{
 							&cli.BoolFlag{
 								Name:  "urls",
@@ -212,7 +295,9 @@ func Execute(version string) {
 						},
 						Commands: []*cli.Command{
 							{
-								Name: "all",
+								Name:      "all",
+								Usage:     "List plugins registered on asdf-plugins repository with URLs",
+								UsageText: "asdf plugin list all",
 								Action: func(_ context.Context, _ *cli.Command) error {
 									return pluginListAllCommand(logger)
 								},
@@ -220,14 +305,16 @@ func Execute(version string) {
 						},
 					},
 					{
-						Name: "remove",
+						Name:  "remove",
+						Usage: "Remove plugin and package versions",
 						Action: func(_ context.Context, cmd *cli.Command) error {
 							args := cmd.Args()
 							return pluginRemoveCommand(cmd, logger, args.Get(0))
 						},
 					},
 					{
-						Name: "update",
+						Name:  "update",
+						Usage: "Update a plugin to latest commit on default branch or a particular git-ref",
 						Flags: []cli.Flag{
 							&cli.BoolFlag{
 								Name:  "all",
@@ -240,7 +327,8 @@ func Execute(version string) {
 						},
 					},
 					{
-						Name: "test",
+						Name:  "test",
+						Usage: "Test a plugin with optional git ref support",
 						Flags: []cli.Flag{
 							&cli.StringFlag{
 								Name:  "asdf-tool-version",
@@ -248,7 +336,7 @@ func Execute(version string) {
 							},
 							&cli.StringFlag{
 								Name:  "asdf-plugin-gitref",
-								Usage: "The plugin Git ref to test",
+								Usage: "Git reference (branch, tag, or commit) of the plugin to test",
 							},
 						},
 						Action: func(_ context.Context, cmd *cli.Command) error {
@@ -262,14 +350,16 @@ func Execute(version string) {
 				},
 			},
 			{
-				Name: "reshim",
+				Name:  "reshim",
+				Usage: "Recreate shims for version of a package",
 				Action: func(_ context.Context, cmd *cli.Command) error {
 					args := cmd.Args()
 					return reshimCommand(logger, args.Get(0), args.Get(1))
 				},
 			},
 			{
-				Name: "set",
+				Name:  "set",
+				Usage: "Set a tool version in a .tool-version in the current directory, or a parent directory",
 				Flags: []cli.Flag{
 					&cli.BoolFlag{
 						Name:    "home",
@@ -292,14 +382,16 @@ func Execute(version string) {
 				},
 			},
 			{
-				Name: "shimversions",
+				Name:  "shimversions",
+				Usage: "List the plugins and versions that provide a command",
 				Action: func(_ context.Context, cmd *cli.Command) error {
 					args := cmd.Args()
 					return shimVersionsCommand(logger, args.Get(0))
 				},
 			},
 			{
-				Name: "uninstall",
+				Name:  "uninstall",
+				Usage: "Remove a specific version of a package",
 				Action: func(_ context.Context, cmd *cli.Command) error {
 					tool := cmd.Args().Get(0)
 					version := cmd.Args().Get(1)
@@ -308,14 +400,16 @@ func Execute(version string) {
 				},
 			},
 			{
-				Name: "update",
+				Name:  "update",
+				Usage: "Update asdf to the latest stable release (deprecated)",
 				Action: func(_ context.Context, _ *cli.Command) error {
 					fmt.Println(updateCommandRemovedText)
 					return errors.New("command removed")
 				},
 			},
 			{
-				Name: "where",
+				Name:  "where",
+				Usage: "Display install path for an installed or current version",
 				Action: func(_ context.Context, cmd *cli.Command) error {
 					tool := cmd.Args().Get(0)
 					version := cmd.Args().Get(1)
@@ -324,7 +418,8 @@ func Execute(version string) {
 				},
 			},
 			{
-				Name: "which",
+				Name:  "which",
+				Usage: "Display the path to an executable",
 				Action: func(_ context.Context, cmd *cli.Command) error {
 					tool := cmd.Args().Get(0)
 
@@ -710,7 +805,7 @@ func anyInstalled(conf config.Config, toolVersions []toolversions.ToolVersions) 
 	return false
 }
 
-func pluginAddCommand(_ *cli.Command, conf config.Config, logger *log.Logger, pluginName, pluginRepo string) error {
+func pluginAddCommand(_ *cli.Command, conf config.Config, logger *log.Logger, pluginName, pluginRepo, gitRef string) error {
 	if pluginName == "" {
 		// Invalid arguments
 		// Maybe one day switch this to show the generated help
@@ -718,7 +813,7 @@ func pluginAddCommand(_ *cli.Command, conf config.Config, logger *log.Logger, pl
 		return cli.Exit("usage: asdf plugin add <name> [<git-url>]", 1)
 	}
 
-	err := plugins.Add(conf, pluginName, pluginRepo, "")
+	err := plugins.Add(conf, pluginName, pluginRepo, gitRef)
 	if err != nil {
 		logger.Printf("%s", err)
 
@@ -1032,6 +1127,21 @@ func pluginTestCommand(l *log.Logger, args []string, toolVersion, ref string) {
 	// a CLI argument
 	if toolVersion == "" {
 		toolVersion = allVersions[0]
+	} else if toolVersion == "latest" {
+		// Resolve "latest" to an actual version
+		latestVersion, err := versions.Latest(plugin, "")
+		if err != nil {
+			failTest(l, fmt.Sprintf("Unable to resolve latest version: %s", err))
+		}
+		toolVersion = latestVersion
+	} else if strings.HasPrefix(toolVersion, "latest:") {
+		// Handle "latest:prefix" syntax
+		prefix := strings.TrimPrefix(toolVersion, "latest:")
+		latestVersion, err := versions.Latest(plugin, prefix)
+		if err != nil {
+			failTest(l, fmt.Sprintf("Unable to resolve latest version with prefix '%s': %s", prefix, err))
+		}
+		toolVersion = latestVersion
 	}
 
 	err = versions.InstallOneVersion(conf, plugin, toolVersion, false, os.Stdout, os.Stderr)
@@ -1475,6 +1585,11 @@ func whereCommand(logger *log.Logger, tool, versionStr string) error {
 	if err != nil {
 		logger.Printf("error loading config: %s", err)
 		return err
+	}
+
+	if tool == "" {
+		logger.Printf("No plugin given")
+		return errors.New("No plugin given")
 	}
 
 	currentDir, err := os.Getwd()
