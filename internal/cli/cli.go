@@ -184,15 +184,22 @@ func Execute(version string) {
 				Commands: []*cli.Command{
 					{
 						Name: "add",
+						Flags: []cli.Flag{
+							&cli.StringFlag{
+								Name:  "gitref",
+								Usage: "Git reference (branch, tag, or commit) to use",
+							},
+						},
 						Action: func(_ context.Context, cmd *cli.Command) error {
 							args := cmd.Args()
+							gitRef := cmd.String("gitref")
 							conf, err := config.LoadConfig()
 							if err != nil {
 								logger.Printf("error loading config: %s", err)
 								return err
 							}
 
-							return pluginAddCommand(cmd, conf, logger, args.Get(0), args.Get(1))
+							return pluginAddCommand(cmd, conf, logger, args.Get(0), args.Get(1), gitRef)
 						},
 					},
 					{
@@ -710,7 +717,7 @@ func anyInstalled(conf config.Config, toolVersions []toolversions.ToolVersions) 
 	return false
 }
 
-func pluginAddCommand(_ *cli.Command, conf config.Config, logger *log.Logger, pluginName, pluginRepo string) error {
+func pluginAddCommand(_ *cli.Command, conf config.Config, logger *log.Logger, pluginName, pluginRepo, gitRef string) error {
 	if pluginName == "" {
 		// Invalid arguments
 		// Maybe one day switch this to show the generated help
@@ -718,7 +725,7 @@ func pluginAddCommand(_ *cli.Command, conf config.Config, logger *log.Logger, pl
 		return cli.Exit("usage: asdf plugin add <name> [<git-url>]", 1)
 	}
 
-	err := plugins.Add(conf, pluginName, pluginRepo, "")
+	err := plugins.Add(conf, pluginName, pluginRepo, gitRef)
 	if err != nil {
 		logger.Printf("%s", err)
 
@@ -1032,6 +1039,21 @@ func pluginTestCommand(l *log.Logger, args []string, toolVersion, ref string) {
 	// a CLI argument
 	if toolVersion == "" {
 		toolVersion = allVersions[0]
+	} else if toolVersion == "latest" {
+		// Resolve "latest" to an actual version
+		latestVersion, err := versions.Latest(plugin, "")
+		if err != nil {
+			failTest(l, fmt.Sprintf("Unable to resolve latest version: %s", err))
+		}
+		toolVersion = latestVersion
+	} else if strings.HasPrefix(toolVersion, "latest:") {
+		// Handle "latest:prefix" syntax
+		prefix := strings.TrimPrefix(toolVersion, "latest:")
+		latestVersion, err := versions.Latest(plugin, prefix)
+		if err != nil {
+			failTest(l, fmt.Sprintf("Unable to resolve latest version with prefix '%s': %s", prefix, err))
+		}
+		toolVersion = latestVersion
 	}
 
 	err = versions.InstallOneVersion(conf, plugin, toolVersion, false, os.Stdout, os.Stderr)
@@ -1475,6 +1497,11 @@ func whereCommand(logger *log.Logger, tool, versionStr string) error {
 	if err != nil {
 		logger.Printf("error loading config: %s", err)
 		return err
+	}
+
+	if tool == "" {
+		logger.Printf("No plugin given")
+		return errors.New("No plugin given")
 	}
 
 	currentDir, err := os.Getwd()
